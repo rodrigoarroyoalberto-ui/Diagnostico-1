@@ -1,0 +1,37 @@
+{
+  "formato": "respuestas-diagnostico/1",
+  "version_formulario": "1.0",
+  "creado": "2026-10-09T09:00:00.000Z",
+  "guardado": "2026-10-09T09:40:00.000Z",
+  "marca": "CLEAN",
+  "respondente": { "nombre": "Persona de prueba", "cargo": "Dirección", "email": "prueba@example.com", "areas": ["marketing", "ventas", "fulfillment", "administracion"] },
+  "empresa": { "nombre": "Empresa ficticia de prueba", "actividad": "Academia de idiomas inventada para pruebas.", "web_dominio": "example.com", "objetivos": ["Atender mejor"], "tipo_clientes": ["particulares"], "canales_captacion": [], "requisitos_seguridad_clientes": [] },
+  "equipo": [{ "id": "r1", "rol": "Recepción", "personas": 1, "area": "ventas", "vinculo": "empleado" }],
+  "externos": [{ "id": "x1", "nombre": "Gestoría", "que_hace": "Impuestos trimestrales" }],
+  "herramientas": [{ "id": "h1", "nombre": "Excel de alumnos", "categoria": "hoja" }],
+  "areas": {
+    "marketing": { "responsable": "", "notas": "", "procesos": [] },
+    "ventas": {
+      "responsable": "r1", "notas": "",
+      "procesos": [
+        {
+          "id": "ven-p1", "plantilla": null, "nombre": "De la consulta a la matrícula",
+          "disparador": { "tipo": "cliente", "texto": "Un interesado escribe" },
+          "frecuencia": { "veces": 60, "periodo": "mes" },
+          "pasos": [
+            { "id": "s1", "que": "Enviar información y precios", "quien": "r1", "con": ["h1"], "tipo": "tarea", "tiempo": "5-15", "dolor": "Contestamos lo mismo veinte veces al día." },
+            { "id": "s2", "que": "Rellenar la ficha de matrícula", "quien": "r1", "con": ["mano"], "tipo": "tarea", "tiempo": "5-15" }
+          ],
+          "resultado": "Alumno matriculado",
+          "confirmado": true
+        }
+      ]
+    },
+    "fulfillment": { "responsable": "", "notas": "", "procesos": [] },
+    "administracion": { "responsable": "", "notas": "", "procesos": [] }
+  },
+  "seguridad": { "dispositivos": [], "incidentes": [], "datos_personales": [], "cobro_tarjeta": [] },
+  "ia": { "herramientas": [], "que_se_comparte": [], "cara_cliente": [], "decisiones_personas": [], "automatizaciones": [], "preocupaciones": [] },
+  "extra": {},
+  "comentarios": ""
+}

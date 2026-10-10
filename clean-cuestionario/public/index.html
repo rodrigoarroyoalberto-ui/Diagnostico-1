@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cuestionario de procesos · CLEAN</title>
+<style>
+:root {
+  --marca: #1f3a5f;
+  --acento: #e4572e;
+  --tinta: #1d232b;
+  --suave: #5b6573;
+  --linea: #dfe3e8;
+  --fondo: #f5f6f8;
+  --papel: #fff;
+  --ok: #067647;
+  --aviso: #b54708;
+  --aviso-fondo: #fffaeb;
+  --sugerido: #fff6d5;
+  --radio: 12px;
+  --letra: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font: 16px/1.5 var(--letra); color: var(--tinta); background: var(--fondo); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--marca); }
+h1, h2, h3, h4 { line-height: 1.2; margin: 0 0 .4em; letter-spacing: -.01em; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0 0 .9em; }
+.suave { color: var(--suave); }
+.oculto { display: none !important; }
+
+/* ---------- estructura ---------- */
+.cabecera { background: var(--marca); color: #fff; }
+.cabecera-in { max-width: 1180px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
+.cabecera img { height: 34px; max-width: 150px; object-fit: contain; background: #fff; border-radius: 6px; padding: 3px; }
+.cabecera-txt { flex: 1; min-width: 0; }
+.cabecera-txt b { display: block; }
+.cabecera-txt span { font-size: .85rem; opacity: .8; }
+.guardado { font-size: .78rem; opacity: .85; white-space: nowrap; }
+.marco { max-width: 1180px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 250px 1fr; gap: 24px; align-items: start; }
+.lateral { position: sticky; top: 16px; background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 10px; }
+.lateral ol { list-style: none; margin: 0; padding: 0; }
+.lateral li button { width: 100%; text-align: left; border: 0; background: none; padding: 9px 10px; border-radius: 8px; cursor: pointer; display: flex; gap: 10px; align-items: center; font-size: .92rem; }
+.lateral li button:hover { background: var(--fondo); }
+.lateral li button.actual { background: color-mix(in srgb, var(--marca) 10%, white); font-weight: 600; color: var(--marca); }
+.lateral .num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .75rem; border: 1.5px solid var(--linea); flex: none; }
+.lateral .hecho .num { background: var(--ok); border-color: var(--ok); color: #fff; }
+.lateral .otra { opacity: .55; }
+.lateral .otra small { display: block; font-size: .7rem; }
+.progreso { height: 6px; background: var(--fondo); border-radius: 3px; overflow: hidden; margin: 10px 4px 4px; }
+.progreso div { height: 100%; background: var(--acento); transition: width .3s; }
+.progreso-txt { font-size: .75rem; color: var(--suave); margin: 0 4px 4px; }
+.contenido, .lateral { min-width: 0; }
+.seccion { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 28px; }
+.seccion > h2 { margin-bottom: .25em; }
+.intro { color: var(--suave); max-width: 720px; }
+.bloque { border-top: 1px solid var(--linea); margin-top: 24px; padding-top: 20px; }
+.bloque > h3 { margin-bottom: .2em; }
+.bloque > .ayuda { margin-bottom: 14px; }
+.navegacion { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; }
+
+/* ---------- campos ---------- */
+.campo { margin: 0 0 18px; }
+.campo > label, .campo > .etiqueta { display: block; font-weight: 600; margin-bottom: 6px; }
+.campo .opcional { font-weight: 400; color: var(--suave); font-size: .85rem; }
+.ayuda { font-size: .85rem; color: var(--suave); margin: -2px 0 8px; }
+input[type=text], input[type=number], input[type=email], select, textarea { width: 100%; border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 18%, transparent); }
+textarea { min-height: 76px; resize: vertical; }
+.fila { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.opciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.op { position: relative; }
+.op input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.op span { display: inline-block; border: 1px solid var(--linea); background: #fff; border-radius: 20px; padding: 7px 14px; font-size: .9rem; cursor: pointer; user-select: none; }
+.op input:checked + span { background: var(--marca); border-color: var(--marca); color: #fff; }
+.op input:focus-visible + span { box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 25%, transparent); }
+.op.nose span { border-style: dashed; }
+.casilla { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.casilla input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+
+.boton { border: 1px solid var(--linea); background: #fff; border-radius: 10px; padding: 9px 16px; cursor: pointer; font-weight: 600; font-size: .92rem; }
+.boton:hover { border-color: var(--marca); color: var(--marca); }
+.boton.principal { background: var(--marca); border-color: var(--marca); color: #fff; }
+.boton.principal:hover { filter: brightness(1.1); color: #fff; }
+.boton.acento { background: var(--acento); border-color: var(--acento); color: #fff; }
+.boton.peligro:hover { border-color: #b42318; color: #b42318; }
+.boton.peque { padding: 5px 10px; font-size: .8rem; border-radius: 8px; font-weight: 500; }
+.boton:disabled { opacity: .5; cursor: default; }
+.icono { border: 0; background: none; cursor: pointer; padding: 4px 7px; border-radius: 6px; color: var(--suave); font-size: .95rem; }
+.icono:hover { background: var(--fondo); color: var(--tinta); }
+.rapidos { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; }
+.rapidos button { border: 1px dashed #b8c0ca; background: #fff; border-radius: 16px; padding: 4px 12px; font-size: .85rem; cursor: pointer; }
+.rapidos button:hover { border-color: var(--marca); color: var(--marca); }
+.rapidos button[disabled] { opacity: .4; cursor: default; }
+
+/* ---------- tarjetas de lista ---------- */
+.tarjeta { border: 1px solid var(--linea); border-radius: 10px; padding: 14px; margin-bottom: 10px; background: #fff; }
+.tarjeta-cab { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.tarjeta-cab input[type=text] { font-weight: 600; }
+.tarjeta-cab .acciones { margin-left: auto; display: flex; gap: 2px; }
+details.mas { margin-top: 8px; }
+details.mas > summary { cursor: pointer; font-size: .85rem; color: var(--marca); font-weight: 600; }
+details.mas[open] > summary { margin-bottom: 12px; }
+
+/* ---------- procesos ---------- */
+.catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.proc-op { border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; background: #fff; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; }
+.proc-op:hover { border-color: var(--marca); }
+.proc-op.elegido { border-color: var(--marca); background: color-mix(in srgb, var(--marca) 6%, white); }
+.proc-op input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+.proc-op b { display: block; font-size: .95rem; }
+.proc-op small { color: var(--suave); font-size: .82rem; display: block; }
+.proc-op .tipico { display: inline-block; font-size: .7rem; font-weight: 700; color: var(--ok); background: #ecfdf3; border-radius: 4px; padding: 0 6px; margin-top: 4px; }
+.proceso { border: 1px solid var(--linea); border-radius: var(--radio); margin: 14px 0; background: #fff; overflow: hidden; }
+.proceso > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; gap: 12px; align-items: center; background: #fafbfc; }
+.proceso > summary::-webkit-details-marker { display: none; }
+.proceso > summary::before { content: "▸"; color: var(--suave); transition: transform .2s; }
+.proceso[open] > summary::before { transform: rotate(90deg); }
+.proceso > summary b { flex: 1; }
+.estado { font-size: .75rem; font-weight: 700; border-radius: 12px; padding: 2px 9px; white-space: nowrap; }
+.estado.vacio { background: var(--fondo); color: var(--suave); }
+.estado.medias { background: var(--aviso-fondo); color: var(--aviso); }
+.estado.listo { background: #ecfdf3; color: var(--ok); }
+.proceso-cuerpo { padding: 6px 18px 18px; }
+.paso { border: 1px solid var(--linea); border-left: 4px solid var(--marca); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+.paso.decision { border-left-color: #f59e0b; }
+.paso.espera { border-left-color: #94a3b8; }
+.paso.comunicacion { border-left-color: #0ea5e9; }
+.paso.sugerido { background: var(--sugerido); }
+.paso-cab { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.paso-num { width: 28px; height: 28px; border-radius: 50%; background: var(--marca); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .85rem; flex: none; }
+.decision .paso-num { background: #f59e0b; }
+.tipos { display: inline-flex; border: 1px solid var(--linea); border-radius: 8px; overflow: hidden; }
+.tipos button { border: 0; background: #fff; padding: 5px 10px; font-size: .8rem; cursor: pointer; border-right: 1px solid var(--linea); }
+.tipos button:last-child { border-right: 0; }
+.tipos button.activo { background: var(--tinta); color: #fff; }
+.paso-cab .acciones { margin-left: auto; display: flex; }
+.etq-sugerido { font-size: .72rem; font-weight: 700; background: #fde68a; color: #92400e; border-radius: 4px; padding: 1px 7px; }
+.opcion-dec { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 8px; align-items: start; margin-bottom: 8px; }
+.opcion-dec .fin-txt { grid-column: 2 / 3; }
+.avisito { font-size: .8rem; color: var(--aviso); background: var(--aviso-fondo); border-radius: 6px; padding: 4px 8px; margin-top: 6px; }
+.relato { background: #f8fafc; border: 1px solid var(--linea); border-radius: 10px; padding: 14px 18px; font-size: .95rem; }
+.relato ol { margin: .4em 0 .6em; padding-left: 1.3em; }
+.relato li { margin-bottom: 3px; }
+.relato .dec { list-style: none; margin-left: -1.3em; color: #92400e; }
+.confirmado { color: var(--ok); font-weight: 700; }
+.area-ajena { background: var(--aviso-fondo); border-radius: 10px; padding: 14px 18px; margin: 16px 0; }
+
+/* ---------- revisión ---------- */
+.revision li { margin-bottom: 4px; }
+.revision .ok { color: var(--ok); }
+.revision .falta { color: var(--aviso); }
+.acciones-envio { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+.nota-envio { background: #ecfdf3; border-radius: 10px; padding: 14px 18px; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--tinta); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; z-index: 50; box-shadow: 0 6px 24px rgba(0,0,0,.2); }
+
+@media (max-width: 860px) {
+  .marco { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
+  .lateral { position: static; }
+  .lateral ol { display: flex; overflow-x: auto; gap: 4px; }
+  .lateral li button { white-space: nowrap; padding: 6px 8px; }
+  .lateral li button .txt { display: none; }
+  .lateral li button.actual .txt { display: inline; }
+  .seccion { padding: 18px 16px; }
+  .opcion-dec { grid-template-columns: 1fr; }
+  .opcion-dec .fin-txt { grid-column: auto; }
+  .proceso-cuerpo { padding: 6px 12px 14px; }
+  .guardado { display: none; }
+}
+@media print {
+  .lateral, .navegacion, .boton, .icono, .rapidos, .tipos, .cabecera .guardado { display: none !important; }
+  .marco { display: block; padding: 0; }
+  .seccion { border: 0; padding: 0; }
+  details { display: block; }
+  details > * { display: block !important; }
+}
+</style>
+</head>
+<body>
+<header class="cabecera"><div class="cabecera-in" id="cabecera"></div></header>
+<div class="marco">
+  <nav class="lateral" aria-label="Secciones"><ol id="indice"></ol><div class="progreso"><div id="barra"></div></div><p class="progreso-txt" id="progreso-txt"></p></nav>
+  <main class="contenido"><div id="seccion"></div>
+    <div class="navegacion"><button class="boton" id="anterior" type="button">← Anterior</button><button class="boton principal" id="siguiente" type="button">Siguiente →</button></div>
+  </main>
+</div>
+<input type="file" id="cargar-archivo" accept=".json,application/json" class="oculto">
+<script>
+/* La marca del consultor y el catálogo de procesos típicos los escribe
+   herramientas/formulario.mjs al generar este archivo. */
+var MARCA = /*__MARCA__*/{"nombre":"CLEAN","eslogan":"Diagnóstico de procesos","email":"","web":"","telefono":"","color_principal":"#111111","color_acento":"#555555","logo_data":"data:image/png;base64,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","webhook_formulario":"/api/enviar","cliente":""};
+var CATALOGO = /*__CATALOGO__*/{"tipos_negocio":{"servicios":"Servicios profesionales (consultoría, despacho, reformas, formación…)","ecommerce":"Tienda online","local":"Comercio o negocio local (tienda, hostelería, taller…)","agencia":"Agencia o estudio creativo","clinica":"Clínica o centro de salud y bienestar","otro":"Otro"},"procesos":[{"id":"mkt-plan","area":"marketing","para":["todos"],"nombre":"Planificación de marketing y contenidos","alcance":"Desde que toca planificar el mes hasta que el calendario está aprobado.","disparador":"calendario","disparador_texto":"Cada mes","resultado":"Calendario aprobado","pasos":[{"que":"Revisar resultados del mes anterior","tipo":"tarea"},{"que":"Definir objetivos y ofertas del mes","tipo":"tarea"},{"que":"Elegir temas y canales","tipo":"tarea"},{"que":"Crear el calendario de publicaciones","tipo":"tarea"},{"que":"Aprobar el calendario","tipo":"decision","pregunta":"¿Se aprueba?","opciones":[{"texto":"Sí"},{"texto":"No, hay cambios","destino":"paso:3"}]},{"que":"Compartir el calendario con el equipo","tipo":"tarea"}]},{"id":"mkt-contenido","area":"marketing","para":["todos"],"nombre":"Creación y publicación de contenido en redes","alcance":"Desde que se elige un tema hasta que está publicado y se responden los comentarios.","disparador":"calendario","disparador_texto":"Según el calendario de publicaciones","resultado":"Contenido publicado","pasos":[{"que":"Redactar el texto o guion","tipo":"tarea"},{"que":"Diseñar la imagen o grabar el vídeo","tipo":"tarea"},{"que":"Revisar el contenido","tipo":"decision","pregunta":"¿Está aprobado?","opciones":[{"texto":"Sí"},{"texto":"No, corregir","destino":"paso:1"}]},{"que":"Programar la publicación","tipo":"tarea"},{"que":"Responder comentarios y mensajes","tipo":"tarea"},{"que":"Apuntar los resultados","tipo":"tarea"}]},{"id":"mkt-anuncios","area":"marketing","para":["todos"],"nombre":"Campañas de publicidad de pago","alcance":"Desde que se decide anunciar algo hasta que la campaña termina y se revisan resultados.","disparador":"decision","resultado":"Campaña terminada","pasos":[{"que":"Definir objetivo y presupuesto","tipo":"tarea"},{"que":"Preparar anuncios y textos","tipo":"tarea"},{"que":"Configurar la campaña","tipo":"tarea"},{"que":"Aprobar la inversión","tipo":"tarea"},{"que":"Lanzar la campaña","tipo":"tarea"},{"que":"Esperar una semana","tipo":"espera","espera":"una semana"},{"que":"Revisar resultados y ajustar","tipo":"tarea"},{"que":"Redactar el informe de la campaña","tipo":"tarea"}]},{"id":"mkt-leads","area":"marketing","para":["todos"],"nombre":"Captación de contactos interesados (leads)","alcance":"Desde que alguien deja sus datos o escribe hasta que se pasa a ventas.","disparador":"cliente","disparador_texto":"Alguien deja sus datos o escribe","resultado":"Contacto entregado a ventas","pasos":[{"que":"Recibir los datos del interesado","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Datos de contacto"},{"que":"Apuntar el contacto","tipo":"tarea"},{"que":"Enviar respuesta o información","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Información"},{"que":"Comprobar si es un contacto válido","tipo":"decision","pregunta":"¿Es un contacto válido?","opciones":[{"texto":"Sí"},{"texto":"No (spam o repetido)","destino":"fin","fin":"Contacto descartado"}]},{"que":"Pasar el contacto a ventas","tipo":"tarea"}]},{"id":"mkt-email","area":"marketing","para":["todos"],"nombre":"Email marketing y newsletter","alcance":"Desde que se decide enviar un email hasta que se revisan sus resultados.","disparador":"calendario","disparador_texto":"Cada semana o mes","resultado":"Email enviado","pasos":[{"que":"Decidir tema y a quién se envía","tipo":"tarea"},{"que":"Redactar el email","tipo":"tarea"},{"que":"Maquetar el email","tipo":"tarea"},{"que":"Enviar una prueba y revisarla","tipo":"tarea"},{"que":"Programar el envío","tipo":"tarea"},{"que":"Revisar aperturas y clics","tipo":"tarea"}]},{"id":"mkt-resenas","area":"marketing","para":["local","clinica","servicios","ecommerce"],"nombre":"Gestión de reseñas y reputación","alcance":"Desde que termina un servicio o llega una reseña hasta que está respondida.","disparador":"otro","disparador_texto":"Llega una reseña nueva","resultado":"Reseña respondida","pasos":[{"que":"Revisar las reseñas nuevas","tipo":"tarea"},{"que":"Ver si es negativa","tipo":"decision","pregunta":"¿Es negativa?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"paso:5"}]},{"que":"Avisar al responsable","tipo":"tarea"},{"que":"Contactar con el cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Disculpa y propuesta"},{"que":"Responder la reseña","tipo":"tarea"}]},{"id":"mkt-informe","area":"marketing","para":["todos"],"nombre":"Medición e informe de marketing","alcance":"Desde que toca revisar números hasta que se presentan y se decide qué cambiar.","disparador":"calendario","disparador_texto":"Cada mes","resultado":"Informe presentado","pasos":[{"que":"Sacar los datos de cada plataforma","tipo":"tarea"},{"que":"Juntar los datos en una hoja","tipo":"tarea"},{"que":"Calcular contactos, coste y ventas por canal","tipo":"tarea"},{"que":"Presentar los resultados a dirección","tipo":"tarea"},{"que":"Apuntar las decisiones","tipo":"tarea"}]},{"id":"mkt-promo","area":"marketing","para":["local","ecommerce"],"nombre":"Lanzamiento de promociones y ofertas","alcance":"Desde que se piensa una oferta hasta que se desactiva.","disparador":"decision","resultado":"Promoción cerrada","pasos":[{"que":"Definir la oferta y sus condiciones","tipo":"tarea"},{"que":"Calcular el margen","tipo":"tarea"},{"que":"Aprobar la promoción","tipo":"tarea"},{"que":"Preparar materiales (cartel, web, códigos)","tipo":"tarea"},{"que":"Informar al equipo","tipo":"tarea"},{"que":"Activar la promoción","tipo":"tarea"},{"que":"Desactivar la promoción","tipo":"tarea"}]},{"id":"ven-leads","area":"ventas","para":["todos"],"nombre":"Atención de interesados (leads)","alcance":"Desde que llega un interesado hasta que se agenda una reunión o se descarta.","disparador":"cliente","disparador_texto":"Llega un interesado","resultado":"Reunión agendada","pasos":[{"que":"Apuntar el contacto","tipo":"tarea"},{"que":"Contactar con el interesado","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Primer contacto"},{"que":"Ver si responde","tipo":"decision","pregunta":"¿Responde?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Interesado sin respuesta"}]},{"que":"Preguntar qué necesita, presupuesto y plazo","tipo":"tarea"},{"que":"Ver si encaja","tipo":"decision","pregunta":"¿Encaja con lo que ofrecemos?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Interesado descartado"}]},{"que":"Agendar la reunión","tipo":"tarea"}]},{"id":"ven-reunion","area":"ventas","para":["servicios","agencia"],"nombre":"Reunión o visita comercial","alcance":"Desde que hay una reunión agendada hasta que se decide preparar propuesta o no.","disparador":"proceso","resultado":"Propuesta solicitada","pasos":[{"que":"Revisar la ficha del cliente","tipo":"tarea"},{"que":"Confirmar la cita","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Confirmación de la cita"},{"que":"Celebrar la reunión o la visita","tipo":"tarea"},{"que":"Apuntar las notas","tipo":"tarea"},{"que":"Ver si encaja la oferta","tipo":"decision","pregunta":"¿Encaja la oferta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Oportunidad descartada"}]},{"que":"Enviar resumen y próximos pasos","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Resumen de la reunión"}]},{"id":"ven-presupuesto","area":"ventas","para":["todos"],"nombre":"Elaboración y seguimiento de presupuestos","alcance":"Desde que alguien pide precio hasta que acepta, rechaza o deja de contestar.","disparador":"cliente","disparador_texto":"El cliente pide presupuesto","resultado":"Presupuesto aceptado","pasos":[{"que":"Reunir lo que necesita el cliente","tipo":"tarea"},{"que":"Calcular precio y margen","tipo":"tarea"},{"que":"Preparar el presupuesto","tipo":"tarea"},{"que":"Enviar el presupuesto","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Presupuesto"},{"que":"Esperar respuesta","tipo":"espera","espera":"unos días"},{"que":"Llamar o escribir para hacer seguimiento","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Recordatorio"},{"que":"Ver qué responde","tipo":"decision","pregunta":"¿Qué responde el cliente?","opciones":[{"texto":"Acepta"},{"texto":"Pide cambios","destino":"paso:2"},{"texto":"Rechaza","destino":"fin","fin":"Presupuesto rechazado"}]}]},{"id":"ven-cierre","area":"ventas","para":["servicios","agencia"],"nombre":"Cierre de la venta y alta del cliente","alcance":"Desde que el cliente dice que sí hasta que pasa al equipo que hace el trabajo.","disparador":"proceso","resultado":"Cliente dado de alta","pasos":[{"que":"Preparar el contrato o pedido","tipo":"tarea"},{"que":"Enviar el contrato para firmar","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Contrato"},{"que":"Recibir el contrato firmado","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Contrato firmado"},{"que":"Emitir la factura de anticipo","tipo":"tarea"},{"que":"Comprobar el cobro del anticipo","tipo":"tarea"},{"que":"Dar de alta al cliente","tipo":"tarea"},{"que":"Pasar el cliente al equipo","tipo":"tarea"}]},{"id":"ven-mostrador","area":"ventas","para":["local"],"nombre":"Venta en tienda o mostrador","alcance":"Desde que entra un cliente hasta que sale con su compra o sin ella.","disparador":"cliente","disparador_texto":"Entra un cliente","resultado":"Venta cobrada","pasos":[{"que":"Atender al cliente","tipo":"tarea"},{"que":"Asesorar sobre el producto","tipo":"tarea"},{"que":"Comprobar stock y precio","tipo":"tarea"},{"que":"Ver si compra","tipo":"decision","pregunta":"¿Compra?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Cliente sin compra"}]},{"que":"Cobrar","tipo":"tarea"},{"que":"Dar el ticket o la factura","tipo":"tarea"}]},{"id":"ven-pedido-web","area":"ventas","para":["ecommerce"],"nombre":"Pedidos online","alcance":"Desde que entra un pedido en la web hasta que está confirmado y pasa a preparación.","disparador":"cliente","disparador_texto":"Entra un pedido en la web","resultado":"Pedido confirmado","pasos":[{"que":"Comprobar el cobro","tipo":"tarea"},{"que":"Revisar el pedido y la dirección","tipo":"tarea"},{"que":"Ver si el pedido es válido","tipo":"decision","pregunta":"¿Es válido?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Pedido cancelado"}]},{"que":"Confirmar el pedido al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Confirmación del pedido"},{"que":"Pasar el pedido a preparación","tipo":"tarea"}]},{"id":"ven-embudo","area":"ventas","para":["servicios","agencia"],"nombre":"Revisión del embudo y previsión de ventas","alcance":"La revisión periódica de oportunidades abiertas.","disparador":"calendario","disparador_texto":"Cada semana","resultado":"Previsión actualizada","pasos":[{"que":"Actualizar el estado de cada oportunidad","tipo":"tarea"},{"que":"Revisar las oportunidades paradas","tipo":"tarea"},{"que":"Celebrar la reunión de ventas","tipo":"tarea"},{"que":"Estimar las ventas del mes","tipo":"tarea"},{"que":"Repartir acciones","tipo":"tarea"}]},{"id":"ven-recompra","area":"ventas","para":["todos"],"nombre":"Renovaciones y recompra","alcance":"Desde que toca renovar o volver a ofrecer algo a un cliente actual hasta que renueva o se pierde.","disparador":"calendario","disparador_texto":"Se acerca la fecha de renovación","resultado":"Cliente renovado","pasos":[{"que":"Revisar el historial del cliente","tipo":"tarea"},{"que":"Contactar con el cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Propuesta de renovación"},{"que":"Presentar la oferta","tipo":"tarea"},{"que":"Ver si acepta","tipo":"decision","pregunta":"¿Acepta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Cliente perdido"}]},{"que":"Registrar la renovación","tipo":"tarea"}]},{"id":"ful-onboarding","area":"fulfillment","para":["servicios","agencia"],"nombre":"Bienvenida e incorporación de un cliente nuevo","alcance":"Desde que ventas pasa un cliente nuevo hasta que todo está listo para empezar el trabajo.","disparador":"proceso","resultado":"Cliente listo para empezar","pasos":[{"que":"Enviar bienvenida y cuestionario","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Bienvenida y cuestionario"},{"que":"Recibir accesos y documentación","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Accesos y documentación"},{"que":"Ver si la información está completa","tipo":"decision","pregunta":"¿Está completa?","opciones":[{"texto":"Sí"},{"texto":"No, falta algo","destino":"paso:2"}]},{"que":"Crear el proyecto","tipo":"tarea"},{"que":"Celebrar la reunión de arranque","tipo":"tarea"},{"que":"Confirmar plan y calendario","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Plan y calendario"}]},{"id":"ful-entrega","area":"fulfillment","para":["servicios","agencia"],"nombre":"Ejecución y entrega del servicio o proyecto","alcance":"Desde que se empieza a trabajar hasta que el cliente tiene la entrega final.","disparador":"proceso","resultado":"Proyecto entregado","pasos":[{"que":"Planificar las tareas","tipo":"tarea"},{"que":"Asignar a las personas","tipo":"tarea"},{"que":"Producir el trabajo","tipo":"tarea"},{"que":"Revisar internamente","tipo":"tarea"},{"que":"Enviar al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Entrega para revisar"},{"que":"Ver si lo aprueba","tipo":"decision","pregunta":"¿Lo aprueba el cliente?","opciones":[{"texto":"Sí"},{"texto":"No, pide cambios","destino":"paso:3"}]},{"que":"Entregar la versión final","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Entrega final"},{"que":"Avisar a administración para facturar","tipo":"tarea"}]},{"id":"ful-citas","area":"fulfillment","para":["clinica","local"],"nombre":"Citas y atención al cliente o paciente","alcance":"Desde que alguien pide cita hasta que se le atiende, se cobra y se programa el seguimiento.","disparador":"cliente","disparador_texto":"Alguien pide cita","resultado":"Servicio realizado","pasos":[{"que":"Consultar la agenda","tipo":"tarea"},{"que":"Reservar la cita","tipo":"tarea"},{"que":"Enviar confirmación y recordatorio","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Confirmación de la cita"},{"que":"Ver si confirma","tipo":"decision","pregunta":"¿Confirma la cita?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Cita cancelada"}]},{"que":"Recibir al cliente o paciente","tipo":"tarea"},{"que":"Atender la consulta o el servicio","tipo":"tarea"},{"que":"Apuntar en la ficha","tipo":"tarea"},{"que":"Cobrar el servicio","tipo":"tarea"},{"que":"Programar el seguimiento","tipo":"tarea"}]},{"id":"ful-envios","area":"fulfillment","para":["ecommerce"],"nombre":"Preparación y envío de pedidos","alcance":"Desde que un pedido está confirmado hasta que sale con el transportista.","disparador":"proceso","resultado":"Pedido enviado","pasos":[{"que":"Imprimir la hoja del pedido","tipo":"tarea"},{"que":"Recoger los productos","tipo":"tarea"},{"que":"Ver si hay stock","tipo":"decision","pregunta":"¿Hay stock?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Pedido retrasado por falta de stock"}]},{"que":"Empaquetar el pedido","tipo":"tarea"},{"que":"Generar la etiqueta de envío","tipo":"tarea"},{"que":"Entregar al transportista","tipo":"tarea"},{"que":"Enviar el seguimiento al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Número de seguimiento"},{"que":"Actualizar el stock","tipo":"tarea"}]},{"id":"ful-devoluciones","area":"fulfillment","para":["ecommerce","local"],"nombre":"Devoluciones y cambios","alcance":"Desde que un cliente pide devolver o cambiar algo hasta que se le reembolsa o se rechaza.","disparador":"cliente","disparador_texto":"Un cliente pide una devolución","resultado":"Devolución reembolsada","pasos":[{"que":"Comprobar plazo y estado","tipo":"tarea"},{"que":"Ver si se acepta","tipo":"decision","pregunta":"¿Se acepta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Devolución rechazada"}]},{"que":"Enviar instrucciones o etiqueta","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Instrucciones de devolución"},{"que":"Recibir el producto","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Producto devuelto"},{"que":"Revisar el producto","tipo":"tarea"},{"que":"Reembolsar o cambiar","tipo":"tarea"},{"que":"Reponer el stock","tipo":"tarea"}]},{"id":"ful-incidencias","area":"fulfillment","para":["todos"],"nombre":"Atención de dudas e incidencias","alcance":"Desde que un cliente pregunta o tiene un problema hasta que queda resuelto.","disparador":"cliente","disparador_texto":"Llega una duda o un problema","resultado":"Incidencia resuelta","pasos":[{"que":"Apuntar la incidencia","tipo":"tarea"},{"que":"Ver si se resuelve al momento","tipo":"decision","pregunta":"¿Se resuelve al momento?","opciones":[{"texto":"Sí","destino":"paso:5"},{"texto":"No"}]},{"que":"Pasar a quien sabe resolverlo","tipo":"tarea"},{"que":"Resolver la incidencia","tipo":"tarea"},{"que":"Responder al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Respuesta"},{"que":"Cerrar la incidencia y apuntar la causa","tipo":"tarea"}]},{"id":"ful-quejas","area":"fulfillment","para":["local","clinica","ecommerce"],"nombre":"Quejas y reclamaciones","alcance":"Desde que llega una queja formal hasta que se responde y se cierra.","disparador":"cliente","disparador_texto":"Llega una queja","resultado":"Queja resuelta","pasos":[{"que":"Registrar la reclamación","tipo":"tarea"},{"que":"Analizar la causa","tipo":"tarea"},{"que":"Proponer una solución","tipo":"tarea"},{"que":"Responder al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Respuesta a la reclamación"},{"que":"Revisar que se ha solucionado","tipo":"tarea"}]},{"id":"ful-stock","area":"fulfillment","para":["ecommerce","local"],"nombre":"Control de stock y reposición","alcance":"Desde que se revisa el stock hasta que la mercancía está repuesta.","disparador":"calendario","disparador_texto":"Cada semana","resultado":"Stock repuesto","pasos":[{"que":"Revisar niveles de stock","tipo":"tarea"},{"que":"Ver si algo está bajo mínimo","tipo":"decision","pregunta":"¿Algo bajo mínimo?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Stock correcto"}]},{"que":"Pedir la mercancía al proveedor","tipo":"comunicacion","sentido":"envia","con":"proveedor","mensaje":"Pedido"},{"que":"Recibir la mercancía","tipo":"comunicacion","sentido":"recibe","con":"proveedor","mensaje":"Mercancía y albarán"},{"que":"Revisar la mercancía","tipo":"tarea"},{"que":"Dar de alta la entrada","tipo":"tarea"}]},{"id":"adm-facturacion","area":"administracion","para":["todos"],"nombre":"Facturación a clientes","alcance":"Desde que toca facturar hasta que la factura está enviada y archivada.","disparador":"otro","disparador_texto":"Se termina un trabajo o llega fin de mes","resultado":"Factura enviada","pasos":[{"que":"Comprobar datos fiscales y condiciones","tipo":"tarea"},{"que":"Emitir la factura","tipo":"tarea"},{"que":"Enviar la factura al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Factura"},{"que":"Apuntar la factura","tipo":"tarea"},{"que":"Archivar la factura","tipo":"tarea"}]},{"id":"adm-cobros","area":"administracion","para":["todos"],"nombre":"Cobro y reclamación de impagos","alcance":"Desde que vence una factura hasta que se cobra o se da por perdida.","disparador":"calendario","disparador_texto":"Cada semana se revisan vencimientos","resultado":"Factura cobrada","pasos":[{"que":"Revisar las facturas vencidas","tipo":"tarea"},{"que":"Comprobar los cobros en el banco","tipo":"tarea"},{"que":"Ver si está cobrada","tipo":"decision","pregunta":"¿Está cobrada?","opciones":[{"texto":"Sí","destino":"fin","fin":"Factura cobrada"},{"texto":"No"}]},{"que":"Enviar un recordatorio","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Recordatorio de pago"},{"que":"Esperar unos días","tipo":"espera","espera":"unos días"},{"que":"Llamar al cliente","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Reclamación de pago"},{"que":"Ver si paga","tipo":"decision","pregunta":"¿Paga?","opciones":[{"texto":"Sí","destino":"fin","fin":"Factura cobrada"},{"texto":"No","destino":"fin","fin":"Deuda en reclamación"}]}]},{"id":"adm-compras","area":"administracion","para":["todos"],"nombre":"Compras y pago a proveedores","alcance":"Desde que hace falta comprar algo hasta que la factura del proveedor está pagada.","disparador":"decision","resultado":"Factura del proveedor pagada","pasos":[{"que":"Pedir presupuestos","tipo":"comunicacion","sentido":"envia","con":"proveedor","mensaje":"Petición de presupuesto"},{"que":"Aprobar la compra","tipo":"tarea"},{"que":"Enviar el pedido al proveedor","tipo":"comunicacion","sentido":"envia","con":"proveedor","mensaje":"Pedido"},{"que":"Recibir la mercancía o el servicio","tipo":"comunicacion","sentido":"recibe","con":"proveedor","mensaje":"Mercancía o servicio"},{"que":"Recibir la factura del proveedor","tipo":"comunicacion","sentido":"recibe","con":"proveedor","mensaje":"Factura del proveedor"},{"que":"Comprobar pedido, albarán y factura","tipo":"tarea"},{"que":"Pagar la factura","tipo":"tarea"},{"que":"Archivar la documentación","tipo":"tarea"}]},{"id":"adm-gastos","area":"administracion","para":["todos"],"nombre":"Gastos y tickets","alcance":"Desde que alguien paga un gasto hasta que está contabilizado (y reembolsado si toca).","disparador":"otro","disparador_texto":"Alguien paga un gasto de la empresa","resultado":"Gasto contabilizado","pasos":[{"que":"Fotografiar o guardar el ticket","tipo":"tarea"},{"que":"Enviar el ticket a administración","tipo":"tarea"},{"que":"Clasificar el gasto","tipo":"tarea"},{"que":"Aprobar el gasto","tipo":"tarea"},{"que":"Reembolsar a la persona","tipo":"tarea"},{"que":"Contabilizar el gasto","tipo":"tarea"}]},{"id":"adm-cierre","area":"administracion","para":["todos"],"nombre":"Cierre del mes e impuestos","alcance":"Desde que acaba el mes o el trimestre hasta que los impuestos están presentados.","disparador":"calendario","disparador_texto":"Fin de mes o de trimestre","resultado":"Periodo cerrado","pasos":[{"que":"Reunir facturas emitidas y recibidas","tipo":"tarea"},{"que":"Cuadrar el banco","tipo":"tarea"},{"que":"Enviar la documentación a la gestoría","tipo":"comunicacion","sentido":"envia","con":"gestoria","mensaje":"Documentación del periodo"},{"que":"Recibir el borrador de impuestos","tipo":"comunicacion","sentido":"recibe","con":"gestoria","mensaje":"Borrador de impuestos"},{"que":"Revisar y aprobar el borrador","tipo":"tarea"},{"que":"Pagar los impuestos","tipo":"tarea"}]},{"id":"adm-nominas","area":"administracion","para":["todos"],"nombre":"Nóminas","alcance":"Desde que se recogen las incidencias del mes hasta que las nóminas están pagadas.","disparador":"calendario","disparador_texto":"Cada mes","resultado":"Nóminas pagadas","pasos":[{"que":"Reunir altas, bajas, vacaciones y horas","tipo":"tarea"},{"que":"Enviar las incidencias a la gestoría","tipo":"comunicacion","sentido":"envia","con":"gestoria","mensaje":"Incidencias del mes"},{"que":"Recibir el borrador de nóminas","tipo":"comunicacion","sentido":"recibe","con":"gestoria","mensaje":"Borrador de nóminas"},{"que":"Revisar las nóminas","tipo":"decision","pregunta":"¿Están bien?","opciones":[{"texto":"Sí"},{"texto":"No, hay errores","destino":"paso:2"}]},{"que":"Pagar las nóminas","tipo":"tarea"},{"que":"Archivar las nóminas","tipo":"tarea"}]},{"id":"adm-seleccion","area":"administracion","para":["todos"],"nombre":"Selección y contratación de personal","alcance":"Desde que hace falta una persona hasta que está contratada.","disparador":"decision","resultado":"Persona contratada","pasos":[{"que":"Definir el puesto","tipo":"tarea"},{"que":"Publicar la oferta","tipo":"tarea"},{"que":"Filtrar candidaturas","tipo":"tarea"},{"que":"Entrevistar candidatos","tipo":"tarea"},{"que":"Elegir candidato","tipo":"tarea"},{"que":"Ver si acepta la oferta","tipo":"decision","pregunta":"¿Acepta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"paso:5"}]},{"que":"Firmar el contrato y dar de alta","tipo":"tarea"}]},{"id":"adm-incorporacion","area":"administracion","para":["todos"],"nombre":"Incorporación de personas al equipo","alcance":"Desde que alguien firma hasta que termina su periodo de prueba.","disparador":"proceso","resultado":"Incorporación completada","pasos":[{"que":"Preparar accesos y equipo","tipo":"tarea"},{"que":"Dar la bienvenida","tipo":"tarea"},{"que":"Explicar cómo se trabaja","tipo":"tarea"},{"que":"Asignar una persona de referencia","tipo":"tarea"},{"que":"Esperar 30 días","tipo":"espera","espera":"30 días"},{"que":"Revisar cómo va","tipo":"tarea"}]}]};
+var AJUSTES = /*__AJUSTES__*/{"textos":{"titulo":"Cuéntanos cómo trabajáis","introduccion":"Con este cuestionario vamos a dibujar cómo funciona hoy tu negocio en {areas}. Con tus respuestas prepararemos el mapa de procesos y un manual paso a paso de cada uno.","tiempo":"Unos 30-45 minutos en total. No hace falta hacerlo de una vez: se guarda solo en este navegador y puedes volver cuando quieras.","nota_final":""},"areas":{"marketing":{"activa":true,"nombre":"Marketing","descripcion":"Cómo os da a conocer el negocio y cómo llegan los interesados: redes, anuncios, contenido, web, reseñas."},"ventas":{"activa":true,"nombre":"Ventas","descripcion":"Desde que alguien se interesa hasta que compra: contactos, reuniones, presupuestos, seguimiento y cierre."},"fulfillment":{"activa":true,"nombre":"Fulfillment","descripcion":"La entrega y el servicio: cómo hacéis y entregáis lo que vendéis, y la atención después (pedidos, citas, incidencias)."},"administracion":{"activa":true,"nombre":"Administración","descripcion":"Lo que sostiene el negocio por detrás: facturas, cobros, pagos, impuestos, nóminas y personal."}},"secciones":{"empresa_para_afinar":true,"pasos_tipicos":true,"detalle_de_cada_paso":true,"proceso_para_terminar":true,"seguridad":true,"ia":true},"preguntas_extra":[]};
+</script>
+<script>
+(function () {
+  'use strict';
+  var VERSION = '1.0';
+  /* Lo que el consultor ha personalizado (formulario/personalizacion.json). */
+  var AJ = AJUSTES || {};
+  var AJ_TEXTOS = AJ.textos || {};
+  var AJ_SECC = AJ.secciones || {};
+  var EXTRAS = AJ.preguntas_extra || [];
+  function activo(clave) { return AJ_SECC[clave] !== false; }
+  var AREAS = [
+    { id: 'marketing', nombre: 'Marketing', texto: 'Cómo os da a conocer el negocio y cómo llegan los interesados: redes, anuncios, contenido, web, reseñas.' },
+    { id: 'ventas', nombre: 'Ventas', texto: 'Desde que alguien se interesa hasta que compra: contactos, reuniones, presupuestos, seguimiento y cierre.' },
+    { id: 'fulfillment', nombre: 'Fulfillment', texto: 'La entrega y el servicio: cómo hacéis y entregáis lo que vendéis, y la atención después (pedidos, citas, incidencias).' },
+    { id: 'administracion', nombre: 'Administración', texto: 'Lo que sostiene el negocio por detrás: facturas, cobros, pagos, impuestos, nóminas y personal.' }
+  ].map(function (a) {
+    var p = (AJ.areas || {})[a.id] || {};
+    return { id: a.id, nombre: p.nombre || a.nombre, texto: p.descripcion || a.texto, activa: p.activa !== false };
+  }).filter(function (a) { return a.activa; });
+  var BLOQUE_DATOS = activo('seguridad') && activo('ia') ? 'Datos, seguridad e IA' : activo('seguridad') ? 'Datos y seguridad' : activo('ia') ? 'Inteligencia artificial' : '';
+  var SECCIONES = [
+    { id: 'inicio', nombre: 'Empezar' },
+    { id: 'empresa', nombre: 'Tu empresa' },
+    { id: 'equipo', nombre: 'Quién trabaja' },
+    { id: 'herramientas', nombre: 'Herramientas' }
+  ].concat(AREAS.map(function (a) { return { id: a.id, nombre: a.nombre, area: true }; }))
+    .concat(BLOQUE_DATOS ? [{ id: 'seguridad', nombre: BLOQUE_DATOS }] : [])
+    .concat([{ id: 'enviar', nombre: 'Revisar y enviar' }]);
+
+  /* ---------- opciones ---------- */
+  var NOSE = ['nose', 'No sé'];
+  var O = {
+    pais: [['España', 'España'], ['México', 'México'], ['Colombia', 'Colombia'], ['Argentina', 'Argentina'], ['Chile', 'Chile'], ['Perú', 'Perú'], ['Ecuador', 'Ecuador'], ['Uruguay', 'Uruguay'], ['Otro', 'Otro']],
+    sector: [['comercio', 'Comercio o tienda online'], ['hosteleria', 'Hostelería o turismo'], ['servicios_prof', 'Servicios profesionales'], ['salud', 'Salud, clínica o bienestar'], ['educacion', 'Educación o formación'], ['industria', 'Industria o fabricación'], ['construccion', 'Construcción, reformas o inmobiliaria'], ['transporte', 'Transporte o logística'], ['tecnologia', 'Tecnología'], ['agencia', 'Agencia, marketing o diseño'], ['finanzas', 'Finanzas o seguros'], ['alimentacion', 'Alimentación'], ['otro', 'Otro']],
+    tipo_clientes: [['empresas', 'Empresas'], ['particulares', 'Particulares'], ['administracion', 'Administración pública'], ['marketplaces', 'A través de marketplaces (Amazon…)']],
+    empleados: [['1', 'Solo yo'], ['2-9', '2 a 9'], ['10-49', '10 a 49'], ['50-249', '50 a 249'], ['250+', '250 o más']],
+    facturacion: [['<0,5', 'Menos de 500.000 €'], ['0,5-2', 'De 0,5 a 2 millones'], ['2-8', 'De 2 a 8 millones'], ['8-10', 'De 8 a 10 millones'], ['10-50', 'De 10 a 50 millones'], ['>50', 'Más de 50 millones'], ['nodecir', 'Prefiero no decirlo']],
+    modalidad: [['presencial', 'Presencial'], ['mixto', 'Mixto'], ['remoto', 'Casi todo en remoto']],
+    canales: [['recomendacion', 'Recomendación / boca a boca'], ['redes', 'Redes sociales'], ['anuncios', 'Anuncios de pago'], ['web_seo', 'Web y Google'], ['google_maps', 'Ficha de Google Maps'], ['email', 'Email'], ['eventos', 'Ferias y eventos'], ['comerciales', 'Comerciales que salen a buscar'], ['marketplaces', 'Marketplaces'], ['puerta', 'Pasan por la tienda o el local'], ['otro', 'Otro']],
+    clientes_mes: [['0-4', 'Menos de 5'], ['5-10', '5 a 10'], ['11-30', '11 a 30'], ['31-100', '31 a 100'], ['>100', 'Más de 100'], NOSE],
+    objetivos: [['Vender más', 'Vender más'], ['Reducir costes', 'Reducir costes'], ['Liberar tiempo del dueño', 'Liberar mi tiempo'], ['Atender mejor', 'Atender mejor al cliente'], ['Menos errores', 'Tener menos errores'], ['Crecer sin contratar', 'Crecer sin contratar'], ['Cumplir normativa', 'Cumplir la normativa'], ['Preparar venta o relevo', 'Preparar una venta o un relevo']],
+    presupuesto: [['<3k', 'Menos de 3.000 €'], ['3-10k', '3.000 - 10.000 €'], ['10-30k', '10.000 - 30.000 €'], ['30-100k', '30.000 - 100.000 €'], ['>100k', 'Más de 100.000 €'], ['depende', 'Depende de lo que devuelva']],
+    gasto_soft: [['<100', 'Menos de 100 €'], ['100-500', '100 - 500 €'], ['500-2000', '500 - 2.000 €'], ['2000-5000', '2.000 - 5.000 €'], ['>5000', 'Más de 5.000 €'], NOSE],
+    horas_cambio: [['<2', 'Menos de 2'], ['2-5', '2 a 5'], ['5-10', '5 a 10'], ['>10', 'Más de 10']],
+    informatica: [['nadie', 'Nadie en concreto'], ['dueno', 'Yo mismo/a'], ['empleado', 'Un empleado a ratos'], ['interno', 'Un informático de la empresa'], ['externo', 'Una empresa externa'], ['conocido', 'Un conocido o freelance']],
+    requisitos: [['no', 'No'], ['cuestionarios', 'Cuestionarios de seguridad'], ['iso27001', 'ISO 27001'], ['ens', 'ENS'], ['nis2', 'NIS2'], ['dpa', 'Contrato de protección de datos'], ['seguro', 'Seguro de ciberriesgos']],
+    verifactu: [['si', 'Sí'], ['no', 'No'], ['gestoria', 'Factura la gestoría'], NOSE],
+    area_rol: [['direccion', 'Dirección'], ['marketing', 'Marketing'], ['ventas', 'Ventas'], ['fulfillment', 'Fulfillment (entrega y servicio)'], ['administracion', 'Administración'], ['varias', 'Varias']],
+    vinculo: [['dueno', 'Dueño o socio'], ['empleado', 'Empleado'], ['autonomo', 'Autónomo que trabaja con nosotros']],
+    coste_hora: [['<15', 'Menos de 15 €'], ['15-25', '15 - 25 €'], ['25-35', '25 - 35 €'], ['35-50', '35 - 50 €'], ['50-80', '50 - 80 €'], ['>80', 'Más de 80 €'], NOSE],
+    jornada: [['completa', 'Completa'], ['parcial', 'Parcial'], ['horas', 'Por horas o proyecto']],
+    categoria: [['correo', 'Correo y ofimática'], ['comunicacion', 'Mensajería (WhatsApp…)'], ['crm', 'CRM (clientes y ventas)'], ['erp', 'Programa de gestión / ERP'], ['facturacion', 'Facturación y contabilidad'], ['banca', 'Banca online'], ['tienda', 'Tienda online o marketplace'], ['web', 'Web'], ['email_mkt', 'Email marketing'], ['redes', 'Redes sociales y anuncios'], ['diseno', 'Diseño y vídeo'], ['agenda', 'Agenda y reservas'], ['tareas', 'Tareas y proyectos'], ['archivos', 'Archivos en la nube'], ['chat_interno', 'Chat interno'], ['rrhh', 'Personal, nóminas, fichaje'], ['firma', 'Firma electrónica'], ['logistica', 'Envíos y almacén'], ['pagos', 'Cobros con tarjeta / TPV'], ['informes', 'Informes y cuadros de mando'], ['hoja', 'Hoja de cálculo clave'], ['ia', 'Inteligencia artificial'], ['automatizacion', 'Automatización'], ['sector', 'Programa del sector'], ['otra', 'Otra']],
+    plan: [['gratuito', 'Gratuito'], ['basico', 'De pago, básico'], ['pago', 'De pago, profesional'], ['enterprise', 'Empresa / enterprise'], ['licencia', 'Licencia comprada o instalado'], NOSE],
+    titular: [['empresa', 'De la empresa'], ['personal', 'Personal de alguien del equipo'], ['agencia', 'De una agencia o proveedor'], NOSE],
+    dos_pasos_h: [['si', 'Sí, a todos'], ['algunos', 'A algunos'], ['no', 'No'], NOSE],
+    criticidad: [['paramos', 'Nos paramos'], ['complica', 'Nos complica mucho'], ['poco', 'Lo notamos poco']],
+    datos_herr: [['contactos', 'Contactos de clientes'], ['empleados', 'Datos de empleados'], ['ventas', 'Pedidos o ventas'], ['facturas', 'Facturas o contabilidad'], ['bancarios', 'Datos bancarios o tarjetas'], ['sensibles', 'Salud u otros datos sensibles'], ['documentos', 'Documentos y contratos'], ['stock', 'Productos o stock'], ['nada', 'Nada personal']],
+    exportar: [['si', 'Sí, todo'], ['parte', 'Solo una parte'], ['no', 'No'], NOSE],
+    funciones_ia: [['usamos', 'Sí, y las usamos'], ['sin_usar', 'Sí, pero no las usamos'], ['no', 'No'], NOSE],
+    satisfaccion: [['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']],
+    disparador: [['cliente', 'Lo pide un cliente'], ['externo', 'Llega algo de un proveedor, la gestoría u otro de fuera'], ['calendario', 'Una fecha o cada cierto tiempo'], ['sistema', 'Salta un aviso en un programa'], ['decision', 'Alguien decide empezar'], ['proceso', 'Termina otro proceso'], ['otro', 'Otra cosa']],
+    periodo: [['dia', 'al día'], ['semana', 'a la semana'], ['mes', 'al mes'], ['trimestre', 'al trimestre'], ['ano', 'al año'], ['irregular', 'sin regularidad']],
+    duracion: [['Minutos', 'Minutos'], ['Horas', 'Horas'], ['1-2 días', '1-2 días'], ['3-7 días', '3-7 días'], ['1-3 semanas', '1-3 semanas'], ['Más de un mes', 'Más de un mes'], ['No sé', 'No sé']],
+    excepciones: [['casi_nunca', 'Casi nunca'], ['uno_de_diez', '1 de cada 10'], ['un_cuarto', '1 de cada 4'], ['mitad', 'La mitad o más'], NOSE],
+    documentado: [['no', 'No, está en la cabeza de quien lo hace'], ['parcial', 'En parte o desactualizado'], ['si', 'Sí, y está al día']],
+    dependencia: [['igual', 'Sigue igual'], ['lento', 'Va más lento'], ['para', 'Se para'], NOSE],
+    se_mide: [['datos', 'Sí, con datos'], ['ojo', 'A ojo'], ['no', 'No']],
+    cambios: [['no', 'No'], ['menores', 'Cambios pequeños'], ['grande', 'Un cambio grande (programa nuevo, reorganización, ley)'], NOSE],
+    impacto: [['Ingresos', 'Ingresos'], ['Costes', 'Costes'], ['Experiencia del cliente', 'Experiencia del cliente'], ['Cumplimiento legal', 'Cumplimiento legal'], ['Tiempo del dueño', 'Tiempo del dueño'], ['Clima del equipo', 'Clima del equipo']],
+    prioridad: [['1', '1 · poco'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5 · mucho']],
+    datos_proc: [['contacto', 'Contacto de personas'], ['bancarios', 'Bancarios o de pago'], ['salud', 'Salud'], ['menores', 'De menores'], ['empleados', 'De empleados'], ['ninguno', 'Ninguno especial']],
+    tiempo: [['lt2', 'menos de 2 min'], ['2-5', '2-5 min'], ['5-15', '5-15 min'], ['15-30', '15-30 min'], ['30-60', '30-60 min'], ['1-2h', '1-2 h'], ['gt2h', 'más de 2 h'], NOSE],
+    naturaleza: [['buscar', 'Buscar o reunir información'], ['copiar', 'Copiar o pasar datos'], ['calcular', 'Calcular o comprobar'], ['redactar', 'Redactar o crear contenido'], ['revisar', 'Revisar o aprobar'], ['hablar', 'Hablar con cliente o proveedor'], ['fisico', 'Trabajo físico']],
+    formato: [['programa', 'En un programa'], ['excel', 'Excel u hoja'], ['email', 'Email con texto libre'], ['pdf', 'PDF o documento'], ['papel', 'Papel o escaneado'], ['voz', 'Llamada o audio'], ['whatsapp', 'WhatsApp o chat'], ['foto', 'Foto']],
+    errores: [['casi_nunca', 'Casi nunca'], ['a_veces', 'A veces'], ['a_menudo', 'A menudo'], NOSE],
+    gravedad: [['corrige', 'Se corrige sin más'], ['molesta', 'Molesta al cliente'], ['dinero', 'Se pierde dinero o hay un problema legal']],
+    datos_paso: [['no', 'No'], ['contacto', 'Contacto básico'], ['bancarios', 'Bancarios o de pago'], ['sensibles', 'Sensibles (salud…) o de menores']],
+    accion: [['consulta', 'Solo se consulta'], ['guarda', 'Se guarda o actualiza un dato'], ['envia', 'Se envía algo fuera'], ['publica', 'Se publica algo'], ['dinero', 'Se mueve dinero'], ['stock', 'Cambia un pedido o el stock']],
+    s_dos_pasos: [['todos', 'En todos'], ['correo_banco', 'En correo y banco, no en el resto'], ['algunos', 'Solo en algunos'], ['no', 'No'], NOSE],
+    s_compartidas: [['no', 'No, cada uno el suyo'], ['algunos', 'Sí, en algunos'], ['mayoria', 'Sí, en la mayoría'], NOSE],
+    s_contrasenas: [['gestor', 'Gestor de contraseñas de empresa'], ['navegador', 'Las recuerda el navegador'], ['papel', 'Excel, notas o papel'], ['memoria', 'Cada uno las memoriza'], NOSE],
+    s_copias: [['probadas', 'Sí, automáticas, guardadas aparte y alguna vez hemos recuperado algo'], ['sin_probar', 'Sí, pero nunca hemos probado a recuperar'], ['nube', 'Solo lo que guarda la nube (Drive, OneDrive…)'], ['no', 'No'], NOSE],
+    s_bajas: [['mismo_dia', 'Se quitan todos el mismo día, con una lista'], ['acordamos', 'Se van quitando cuando nos acordamos'], ['algunas', 'Solo cambiamos algunas contraseñas'], ['nada', 'Nada especial'], NOSE],
+    s_dispositivos: [['ordenadores_empresa', 'Ordenadores de la empresa'], ['ordenadores_personales', 'Ordenadores personales'], ['personales_moviles', 'Móviles personales con correo o WhatsApp del trabajo'], ['actualizan', 'Se actualizan solos'], ['antivirus', 'Tienen antivirus'], ['gestionados', 'Los gestiona alguien de forma centralizada'], ['cifrado', 'Disco cifrado'], NOSE],
+    s_incidentes: [['emails_falsos', 'Emails o WhatsApp falsos de proveedor, banco o jefe'], ['cambio_cuenta', 'Intento de cambiar la cuenta bancaria de una factura'], ['cuenta_robada', 'Una cuenta robada'], ['virus', 'Virus o secuestro de datos'], ['perdida', 'Pérdida de datos o de un portátil'], ['web', 'Web caída o hackeada'], ['nada', 'Nada'], NOSE],
+    s_datos: [['contacto', 'Contacto de clientes o proveedores'], ['empleados', 'Empleados y nóminas'], ['dni', 'DNI o documentos'], ['bancarios', 'Bancarios'], ['salud', 'Salud (también bajas, alergias)'], ['biometria', 'Huella o cara'], ['menores', 'Menores'], ['ubicacion', 'Ubicación'], ['ideologia', 'Ideología, religión, sindicato, origen u orientación'], ['penales', 'Antecedentes penales'], ['solvencia', 'Deudas o solvencia'], ['ninguno', 'Ninguno']],
+    s_tarjeta: [['datafono', 'Datáfono'], ['pasarela', 'Pasarela que lleva al banco, Stripe o PayPal'], ['formulario_web', 'Formulario de pago dentro de nuestra web'], ['telefono', 'Nos dan el número por teléfono, email o papel'], ['no_tarjeta', 'No cobramos con tarjeta']],
+    s_formacion: [['si', 'Sí, formación'], ['avisos', 'Solo avisos informales'], ['no', 'No'], NOSE],
+    ia_uso: [['no', 'No'], ['por_su_cuenta', 'Algunas personas, por su cuenta'], ['empresa', 'Sí, con herramientas que paga la empresa'], ['integrada', 'Sí, y además integrada en procesos'], NOSE],
+    ia_herr: [['ChatGPT', 'ChatGPT'], ['Microsoft Copilot', 'Microsoft Copilot'], ['Gemini', 'Gemini'], ['Claude', 'Claude'], ['Perplexity', 'Perplexity'], ['DeepSeek', 'DeepSeek'], ['Meta AI', 'Meta AI / WhatsApp'], ['Imagen o vídeo', 'Imagen o vídeo'], ['Transcripción', 'Transcripción de reuniones'], ['Dentro de otros programas', 'IA dentro de otros programas'], ['Chatbot', 'Chatbot en web o WhatsApp'], ['Agentes', 'Agentes o automatizaciones con IA'], ['Otra', 'Otra']],
+    ia_cuenta: [['gratis_personal', 'Gratuitas personales'], ['pago_personal', 'De pago personales'], ['empresa', 'De empresa'], ['mezcla', 'Mezcla'], NOSE],
+    ia_comparte: [['textos', 'Textos sin datos'], ['emails_clientes', 'Emails de clientes'], ['datos_clientes', 'Datos personales de clientes'], ['datos_empleados', 'Datos de empleados'], ['documentos', 'Documentos internos o contratos'], ['financieros', 'Datos financieros'], ['contrasenas', 'Contraseñas o accesos'], NOSE],
+    ia_normas: [['escritas', 'Escritas y comunicadas'], ['verbales', 'De palabra'], ['no', 'No']],
+    ia_formacion: [['organizada', 'Formación organizada'], ['por_su_cuenta', 'Algunos por su cuenta'], ['no', 'No']],
+    ia_cliente: [['chatbot', 'Chatbot en web o WhatsApp'], ['sin_revisar', 'Respuestas enviadas sin revisar'], ['contenido', 'Contenido generado que se publica'], ['voz', 'Llamadas con voz de IA'], ['no', 'No']],
+    ia_personas: [['cvs', 'Filtrar CVs'], ['empleados', 'Evaluar empleados'], ['credito', 'Dar crédito o aplazamientos'], ['precios', 'Precios personalizados'], ['no', 'No']],
+    ia_autom: [['zapier', 'Zapier'], ['make', 'Make'], ['n8n', 'n8n'], ['power_automate', 'Power Automate'], ['macros', 'Macros de Excel o Sheets'], ['nativas', 'Integraciones de los propios programas'], ['a_medida', 'Desarrollos a medida'], ['ninguna', 'Ninguna']],
+    ia_mantiene: [['interno', 'Alguien de dentro'], ['externo', 'Un proveedor'], ['nadie', 'Nadie (las hizo alguien que ya no está)']],
+    si_no_nose: [['si', 'Sí'], ['no', 'No'], NOSE],
+    ia_preocupa: [['Privacidad', 'Privacidad'], ['Errores', 'Errores'], ['Coste', 'Coste'], ['Que el equipo no lo use', 'Que el equipo no lo use'], ['Normativa', 'Normativa'], ['Depender de un proveedor', 'Depender de un proveedor'], ['Nada', 'Nada']]
+  };
+  var ROLES_RAPIDOS = [['Gerente', 'direccion', 'dueno'], ['Comercial', 'ventas', 'empleado'], ['Administración', 'administracion', 'empleado'], ['Marketing', 'marketing', 'empleado'], ['Atención al cliente', 'fulfillment', 'empleado'], ['Técnico / operario', 'fulfillment', 'empleado'], ['Jefe de proyecto', 'fulfillment', 'empleado'], ['Recepción', 'fulfillment', 'empleado'], ['Freelance', 'varias', 'autonomo']];
+  var EXTERNOS_RAPIDOS = [['Gestoría o asesoría', 'Contabilidad, impuestos, nóminas'], ['Proveedor principal', 'Materiales o productos'], ['Agencia de marketing', 'Redes, anuncios o web'], ['Transportista', 'Envíos'], ['Informático externo', 'Ordenadores, web o programas'], ['Banco', 'Cobros, pagos, financiación']];
+  var HERR_RAPIDAS = [
+    ['WhatsApp Business', 'comunicacion'], ['WhatsApp personal', 'comunicacion'], ['Gmail', 'correo'], ['Outlook', 'correo'], ['Google Workspace', 'correo'], ['Microsoft 365', 'correo'], ['Excel', 'hoja'], ['Google Sheets', 'hoja'], ['Google Drive', 'archivos'], ['Dropbox', 'archivos'],
+    ['Holded', 'facturacion'], ['Quipu', 'facturacion'], ['A3', 'facturacion'], ['Sage', 'facturacion'], ['Alegra', 'facturacion'], ['Banca online', 'banca'],
+    ['HubSpot', 'crm'], ['Pipedrive', 'crm'], ['Zoho', 'crm'], ['Clientify', 'crm'], ['Odoo', 'erp'],
+    ['Instagram', 'redes'], ['Meta Business Suite', 'redes'], ['Google Ads', 'redes'], ['Canva', 'diseno'], ['Mailchimp', 'email_mkt'], ['Brevo', 'email_mkt'], ['WordPress', 'web'], ['Wix', 'web'],
+    ['Shopify', 'tienda'], ['WooCommerce', 'tienda'], ['PrestaShop', 'tienda'], ['Stripe', 'pagos'], ['TPV / datáfono', 'pagos'],
+    ['Google Calendar', 'agenda'], ['Calendly', 'agenda'], ['Trello', 'tareas'], ['Asana', 'tareas'], ['Notion', 'tareas'], ['ClickUp', 'tareas'], ['Slack', 'chat_interno'], ['Teams', 'chat_interno'],
+    ['ChatGPT', 'ia'], ['Zapier', 'automatizacion'], ['Make', 'automatizacion'], ['n8n', 'automatizacion']
+  ];
+
+  /* ---------- estado ---------- */
+  var CLAVE = 'diagnostico-procesos/' + (MARCA.nombre || 'marca') + '/' + (MARCA.cliente || 'general');
+  var E = null; // respuestas
+  var UI = { seccion: 'inicio', abierto: {} };
+
+  function nuevo() {
+    var areas = {};
+    AREAS.forEach(function (a) { areas[a.id] = { responsable: '', notas: '', procesos: [] }; });
+    return {
+      formato: 'respuestas-diagnostico/1', version_formulario: VERSION, creado: new Date().toISOString(), guardado: '', marca: MARCA.nombre || '',
+      respondente: { nombre: '', cargo: '', email: '', areas: AREAS.map(function (a) { return a.id; }) },
+      empresa: { nombre: MARCA.cliente || '', objetivos: [], tipo_clientes: [], canales_captacion: [], requisitos_seguridad_clientes: [] },
+      equipo: [], externos: [], herramientas: [], areas: areas,
+      seguridad: { dispositivos: [], incidentes: [], datos_personales: [], cobro_tarjeta: [] },
+      ia: { herramientas: [], que_se_comparte: [], cara_cliente: [], decisiones_personas: [], automatizaciones: [], preocupaciones: [] },
+      extra: {},
+      comentarios: ''
+    };
+  }
+
+  function cargarGuardado() {
+    try {
+      var t = localStorage.getItem(CLAVE);
+      if (t) { var d = JSON.parse(t); if (d && d.respuestas) { E = d.respuestas; UI = Object.assign(UI, d.ui || {}); return true; } }
+    } catch (e) { /* sin almacenamiento */ }
+    return false;
+  }
+  /* Guarda como mucho 350 ms después del primer cambio (aunque se siga
+     escribiendo) y siempre al cerrar o cambiar de pestaña. */
+  var temporizador = null;
+  function volcar() {
+    clearTimeout(temporizador);
+    temporizador = null;
+    var g = document.getElementById('guardado');
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify({ respuestas: E, ui: { seccion: UI.seccion } }));
+      if (g) g.textContent = 'Guardado en este navegador ✓ ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      if (g) g.textContent = 'Este navegador no deja guardar: descarga tus respuestas al terminar';
+    }
+  }
+  function guardar() {
+    E.guardado = new Date().toISOString();
+    if (!temporizador) temporizador = setTimeout(volcar, 350);
+  }
+  window.addEventListener('pagehide', function () { if (E) volcar(); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && E) volcar(); });
+
+  /* ---------- utilidades ---------- */
+  function esc(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function leer(ruta) { return ruta.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, E); }
+  function poner(ruta, valor) {
+    var partes = ruta.split('.');
+    var o = E;
+    for (var i = 0; i < partes.length - 1; i++) {
+      if (o[partes[i]] == null) o[partes[i]] = /^\d+$/.test(partes[i + 1]) ? [] : {};
+      o = o[partes[i]];
+    }
+    o[partes[partes.length - 1]] = valor;
+  }
+  function etiqueta(lista, v) { for (var i = 0; i < lista.length; i++) if (lista[i][0] === v) return lista[i][1]; return v || ''; }
+  function sigId(lista, prefijo) { var n = 0; lista.forEach(function (x) { var m = String(x.id || '').match(/(\d+)$/); if (m) n = Math.max(n, +m[1]); }); return prefijo + (n + 1); }
+  function aviso(txt) {
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = txt; document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2600);
+  }
+  function areasMias() { return (E.respondente.areas || []); }
+
+  /* ---------- controles ---------- */
+  function cTexto(ruta, eti, o) {
+    o = o || {};
+    var v = leer(ruta);
+    var ctl = o.area
+      ? '<textarea data-campo="' + ruta + '" placeholder="' + esc(o.ph || '') + '" rows="' + (o.filas || 3) + '">' + esc(v) + '</textarea>'
+      : '<input type="' + (o.tipo || 'text') + '" data-campo="' + ruta + '" value="' + esc(v) + '" placeholder="' + esc(o.ph || '') + '"' + (o.min != null ? ' min="' + o.min + '"' : '') + '>';
+    if (!eti) return ctl;
+    return '<div class="campo"><label>' + eti + (o.opcional ? ' <span class="opcional">(opcional)</span>' : '') + '</label>' + (o.ayuda ? '<p class="ayuda">' + o.ayuda + '</p>' : '') + ctl + '</div>';
+  }
+  function cSelect(ruta, eti, lista, o) {
+    o = o || {};
+    var v = leer(ruta);
+    var html = '<select data-campo="' + ruta + '"><option value="">' + (o.vacio || 'Elige…') + '</option>' + lista.map(function (x) { return '<option value="' + esc(x[0]) + '"' + (String(v) === String(x[0]) ? ' selected' : '') + '>' + esc(x[1]) + '</option>'; }).join('') + '</select>';
+    if (!eti) return html;
+    return '<div class="campo"><label>' + eti + (o.opcional ? ' <span class="opcional">(opcional)</span>' : '') + '</label>' + (o.ayuda ? '<p class="ayuda">' + o.ayuda + '</p>' : '') + html + '</div>';
+  }
+  function cOpciones(ruta, eti, lista, o) {
+    o = o || {};
+    var v = leer(ruta);
+    var multi = !!o.multi;
+    var nombre = 'n' + ruta.replace(/\./g, '_');
+    var html = '<div class="opciones">' + lista.map(function (x) {
+      var marcado = multi ? (Array.isArray(v) && v.indexOf(x[0]) >= 0) : String(v) === String(x[0]);
+      return '<label class="op' + (x[0] === 'nose' ? ' nose' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="' + nombre + '" ' + (multi ? 'data-multi' : 'data-campo') + '="' + ruta + '" value="' + esc(x[0]) + '"' + (o.max ? ' data-max="' + o.max + '"' : '') + (marcado ? ' checked' : '') + '><span>' + esc(x[1]) + '</span></label>';
+    }).join('') + '</div>';
+    if (!eti) return html;
+    return '<div class="campo"><span class="etiqueta">' + eti + (o.opcional ? ' <span class="opcional">(opcional)</span>' : '') + '</span>' + (o.ayuda ? '<p class="ayuda">' + o.ayuda + '</p>' : '') + html + '</div>';
+  }
+
+  function listaQuien(incluirFuera) {
+    var l = E.equipo.map(function (r) { return [r.id, r.rol || '(puesto sin nombre)']; });
+    if (incluirFuera) {
+      l.push(['cliente', 'El cliente']);
+      E.externos.forEach(function (x) { l.push([x.id, (x.nombre || 'Externo') + ' (de fuera)']); });
+      l.push(['auto', 'Un programa, solo']);
+    }
+    return l;
+  }
+  function nombreQuien(id) {
+    if (id === 'cliente') return 'el cliente';
+    if (id === 'auto') return 'un programa, solo,';
+    var r = E.equipo.filter(function (x) { return x.id === id; })[0]; if (r) return r.rol || 'alguien';
+    var x = E.externos.filter(function (x) { return x.id === id; })[0]; if (x) return x.nombre || 'alguien de fuera';
+    return '';
+  }
+  function nombreHerr(id) {
+    if (id === 'mano') return 'a mano o en papel';
+    if (id === 'memoria') return 'de memoria';
+    var h = E.herramientas.filter(function (x) { return x.id === id; })[0];
+    return h ? h.nombre : '';
+  }
+  function todosProcesos() {
+    var l = [];
+    AREAS.forEach(function (a) { (E.areas[a.id].procesos || []).forEach(function (p) { l.push({ area: a, p: p }); }); });
+    return l;
+  }
+
+  /* {areas} y {empresa} en los textos personalizados. */
+  function conHuecos(t) {
+    var nombres = AREAS.map(function (a) { return a.nombre.toLowerCase(); });
+    var lista = nombres.length > 1 ? nombres.slice(0, -1).join(', ') + ' y ' + nombres[nombres.length - 1] : nombres[0];
+    var areas = AREAS.length === 4 ? 'sus cuatro áreas: ' + lista : (AREAS.length === 1 ? 'el área de ' : 'las áreas de ') + lista;
+    return String(t).replace(/\{areas\}/g, areas).replace(/\{empresa\}/g, E.empresa.nombre || 'tu negocio');
+  }
+
+  /* Preguntas propias del consultor, al final de su sección. */
+  function campoExtra(q) {
+    var ruta = 'extra.' + q.id;
+    var eti = esc(q.pregunta);
+    var o = { ayuda: q.ayuda ? esc(q.ayuda) : '' };
+    if (q.tipo === 'texto_largo') return cTexto(ruta, eti, { area: true, filas: 3, ayuda: o.ayuda });
+    if (q.tipo === 'numero') return cTexto(ruta, eti, { tipo: 'number', ayuda: o.ayuda });
+    if (q.tipo === 'una') return cOpciones(ruta, eti, q.opciones.map(function (x) { return [x, x]; }), o);
+    if (q.tipo === 'varias') return cOpciones(ruta, eti, q.opciones.map(function (x) { return [x, x]; }), { multi: true, ayuda: o.ayuda });
+    if (q.tipo === 'si_no') return cOpciones(ruta, eti, [['Sí', 'Sí'], ['No', 'No']], o);
+    return cTexto(ruta, eti, { ayuda: o.ayuda });
+  }
+  function bloqueExtras(seccion) {
+    var qs = EXTRAS.filter(function (q) { return q.seccion === seccion; });
+    if (!qs.length) return '';
+    return '<div class="bloque"><h3>Unas preguntas más</h3>' + qs.map(campoExtra).join('') + '</div>';
+  }
+
+  /* ---------- secciones ---------- */
+  var RENDER = {};
+
+  RENDER.inicio = function () {
+    var r = E.respondente;
+    return '<section class="seccion">' +
+      '<h1>' + (E.empresa.nombre ? 'Hola, ' + esc(E.empresa.nombre) : esc(AJ_TEXTOS.titulo || 'Cuéntanos cómo trabajáis')) + '</h1>' +
+      '<p class="intro">' + esc(conHuecos(AJ_TEXTOS.introduccion || 'Con este cuestionario vamos a dibujar cómo funciona hoy tu negocio en {areas}. Con tus respuestas prepararemos el mapa de procesos y un manual paso a paso de cada uno.')) + '</p>' +
+      '<div class="fila" style="margin:18px 0">' +
+        '<div class="tarjeta"><b>Cómo es</b><p class="suave" style="margin:4px 0 0">' + esc(AJ_TEXTOS.tiempo || 'Unos 30-45 minutos en total. No hace falta hacerlo de una vez: se guarda solo en este navegador y puedes volver cuando quieras.') + '</p></div>' +
+        '<div class="tarjeta"><b>Qué importa</b><p class="suave" style="margin:4px 0 0">Cómo se hace <b>de verdad</b>, no cómo debería hacerse. Piensa en la última vez que pasó. Aproximado vale: mejor «unas 3 horas» que dejarlo en blanco.</p></div>' +
+        '<div class="tarjeta"><b>Qué no pedimos</b><p class="suave" style="margin:4px 0 0">Nunca datos de tus clientes, ni contraseñas, ni facturas. Solo cómo trabajáis. Usa puestos («Comercial»), no nombres de personas.</p></div>' +
+      '</div>' +
+      '<div class="bloque"><h3>Sobre ti</h3>' +
+        '<div class="fila">' + cTexto('respondente.nombre', 'Tu nombre') + cTexto('respondente.cargo', 'Tu puesto', { ph: 'Gerente, Administración…' }) + '</div>' +
+        cOpciones('respondente.areas', '¿Qué áreas vas a contestar tú?', AREAS.map(function (a) { return [a.id, a.nombre]; }), { multi: true, ayuda: 'Si otra persona conoce mejor un área, desmárcala: puede rellenar su parte en su propio ordenador con este mismo archivo, y luego se juntan.' }) +
+      '</div>' +
+      '<div class="bloque"><h3>¿Ya empezaste en otro ordenador?</h3><p class="ayuda">Si tienes un archivo de respuestas descargado de este cuestionario, cárgalo y sigue donde lo dejaste.</p>' +
+        '<button type="button" class="boton" data-accion="cargar">Cargar un archivo de respuestas</button> <button type="button" class="boton peligro" data-accion="borrar-todo">Empezar de cero</button>' +
+      '</div>' +
+    '</section>';
+  };
+
+  RENDER.empresa = function () {
+    var tipos = Object.keys(CATALOGO.tipos_negocio || {}).map(function (k) { return [k, CATALOGO.tipos_negocio[k]]; });
+    return '<section class="seccion"><h2>Tu empresa</h2><p class="intro">Lo básico para entender el negocio. Lo marcado como opcional ayuda a afinar, pero puedes saltarlo.</p>' +
+      '<div class="bloque"><h3>Lo básico</h3>' +
+        '<div class="fila">' + cTexto('empresa.nombre', 'Nombre comercial') + cSelect('empresa.pais', 'País de la sede', O.pais) + '</div>' +
+        '<div class="fila">' + cSelect('empresa.sector', 'Sector', O.sector) + cSelect('empresa.tipo_negocio', 'Tipo de negocio', tipos, { ayuda: '' }) + '</div>' +
+        cTexto('empresa.actividad', '¿Qué vendéis y a quién?', { area: true, filas: 2, ph: 'Reformas de cocinas y baños para particulares en Valencia' }) +
+        cOpciones('empresa.tipo_clientes', '¿A quién vendéis?', O.tipo_clientes, { multi: true }) +
+        cOpciones('empresa.empleados', '¿Cuántas personas trabajan, contando socios y autónomos habituales?', O.empleados) +
+        cOpciones('empresa.canales_captacion', '¿Cómo os llegan los clientes?', O.canales, { multi: true }) +
+        cOpciones('empresa.objetivos', '¿Qué quieres conseguir en los próximos 12 meses?', O.objetivos, { multi: true, max: 3, ayuda: 'Hasta 3.' }) +
+        cTexto('empresa.dolores_principales', '¿Qué tres cosas os quitan hoy más tiempo o dinero?', { area: true, ph: 'Con tus palabras' }) +
+      '</div>' +
+      (activo('empresa_para_afinar') ? '<details class="mas bloque"><summary>Para afinar (opcional, 3 minutos)</summary>' +
+        '<div class="fila">' + cTexto('empresa.web_dominio', 'Vuestra web', { ph: 'miempresa.es' }) + cSelect('empresa.facturacion', 'Facturación anual aproximada', O.facturacion) + '</div>' +
+        '<label class="casilla campo"><input type="checkbox" data-bool="empresa.chequeo_pasivo"' + (E.empresa.chequeo_pasivo ? ' checked' : '') + '><span>Autorizo a revisar desde fuera la configuración pública de nuestro correo y nuestra web, sin acceder a nada.</span></label>' +
+        '<div class="fila">' + cSelect('empresa.modalidad', '¿Dónde trabaja el equipo?', O.modalidad) + cSelect('empresa.clientes_nuevos_mes', 'Clientes nuevos al mes', O.clientes_mes) + '</div>' +
+        cTexto('empresa.ticket_medio', 'Lo que gasta un cliente normal', { ph: 'Entre 300 y 600 € por pedido' }) +
+        cTexto('empresa.tarea_a_eliminar', 'Si pudieras no volver a hacer una tarea nunca más, ¿cuál sería?') +
+        '<div class="fila">' + cSelect('empresa.presupuesto_mejora', '¿Cuánto podrías invertir el primer año en mejorar procesos?', O.presupuesto) + cSelect('empresa.gasto_software_mes', '¿Cuánto gastáis al mes en programas y suscripciones?', O.gasto_soft) + '</div>' +
+        '<div class="fila">' + cSelect('empresa.horas_semana_disponibles', 'Horas a la semana que el equipo puede dedicar a implantar cambios', O.horas_cambio) + cSelect('empresa.responsable_informatica', '¿Quién se encarga de la informática?', O.informatica) + '</div>' +
+        cOpciones('empresa.requisitos_seguridad_clientes', '¿Algún cliente os pide requisitos de seguridad o certificados?', O.requisitos, { multi: true }) +
+        (E.empresa.pais === 'España' ? cSelect('empresa.verifactu', '¿Vuestro programa de facturación está adaptado a Verifactu?', O.verifactu) : '') +
+      '</details>' : '') + '</section>';
+  };
+
+  RENDER.equipo = function () {
+    var roles = E.equipo.map(function (r, i) {
+      var b = 'equipo.' + i + '.';
+      return '<div class="tarjeta"><div class="tarjeta-cab">' + cTexto(b + 'rol', '', { ph: 'Nombre del puesto' }) + '<div class="acciones"><button type="button" class="icono" title="Quitar" data-accion="quitar-rol" data-i="' + i + '">✕</button></div></div>' +
+        '<div class="fila">' +
+          '<div class="campo"><label>Personas</label>' + cTexto(b + 'personas', '', { tipo: 'number', min: 1 }) + '</div>' +
+          cSelect(b + 'area', 'Área principal', O.area_rol) + cSelect(b + 'vinculo', 'Relación', O.vinculo) +
+        '</div>' +
+        '<details class="mas"><summary>Coste y jornada (opcional)</summary><div class="fila">' + cSelect(b + 'coste_hora', 'Coste por hora para la empresa (sueldo + seguros sociales)', O.coste_hora) + cSelect(b + 'jornada', 'Jornada', O.jornada) + '</div></details>' +
+      '</div>';
+    }).join('');
+    var externos = E.externos.map(function (x, i) {
+      var b = 'externos.' + i + '.';
+      return '<div class="tarjeta"><div class="tarjeta-cab">' + cTexto(b + 'nombre', '', { ph: 'Gestoría, proveedor…' }) + '<div class="acciones"><button type="button" class="icono" title="Quitar" data-accion="quitar-externo" data-i="' + i + '">✕</button></div></div>' + cTexto(b + 'que_hace', '', { ph: '¿Qué hace para vosotros?' }) + '</div>';
+    }).join('');
+    var usadosR = E.equipo.map(function (r) { return (r.rol || '').toLowerCase(); });
+    var usadosX = E.externos.map(function (r) { return (r.nombre || '').toLowerCase(); });
+    return '<section class="seccion"><h2>Quién trabaja</h2><p class="intro">Los puestos que hay en la empresa. Pon <b>puestos, no nombres</b>: «Comercial», no «Laura». Si una persona hace de todo, basta un puesto (por ejemplo «Gerente»).</p>' +
+      '<div class="bloque"><h3>El equipo</h3><div class="rapidos">' + ROLES_RAPIDOS.map(function (r, i) { return '<button type="button" data-accion="rol-rapido" data-i="' + i + '"' + (usadosR.indexOf(r[0].toLowerCase()) >= 0 ? ' disabled' : '') + '>+ ' + esc(r[0]) + '</button>'; }).join('') + '</div>' +
+        (roles || '<p class="suave">Aún no hay puestos. Añade los que haya con los botones de arriba o con «Añadir otro puesto».</p>') +
+        '<button type="button" class="boton" data-accion="nuevo-rol">+ Añadir otro puesto</button></div>' +
+      '<div class="bloque"><h3>Empresas o personas de fuera con las que trabajáis</h3><p class="ayuda">Gestoría, proveedores, agencias, transportistas… Solo los que intervienen en cómo trabajáis.</p><div class="rapidos">' + EXTERNOS_RAPIDOS.map(function (r, i) { return '<button type="button" data-accion="externo-rapido" data-i="' + i + '"' + (usadosX.indexOf(r[0].toLowerCase()) >= 0 ? ' disabled' : '') + '>+ ' + esc(r[0]) + '</button>'; }).join('') + '</div>' +
+        externos + '<button type="button" class="boton" data-accion="nuevo-externo">+ Añadir otro</button></div>' +
+    '</section>';
+  };
+
+  RENDER.herramientas = function () {
+    var nombres = E.herramientas.map(function (h) { return (h.nombre || '').toLowerCase(); });
+    var tarjetas = E.herramientas.map(function (h, i) {
+      var b = 'herramientas.' + i + '.';
+      var otras = E.herramientas.filter(function (x) { return x.id !== h.id; }).map(function (x) { return [x.id, x.nombre || '(sin nombre)']; });
+      return '<div class="tarjeta"><div class="tarjeta-cab">' + cTexto(b + 'nombre', '', { ph: 'Nombre de la herramienta' }) + '<div class="acciones"><button type="button" class="icono" title="Quitar" data-accion="quitar-herr" data-i="' + i + '">✕</button></div></div>' +
+        '<div class="fila">' + cSelect(b + 'categoria', 'Tipo', O.categoria) + cTexto(b + 'uso', '¿Para qué la usáis?') + '<div class="campo"><label>¿Cuántas personas la usan?</label>' + cTexto(b + 'usuarios', '', { tipo: 'number', min: 0 }) + '</div></div>' +
+        '<div class="fila">' + cSelect(b + 'titular', '¿A nombre de quién está la cuenta?', O.titular) + cSelect(b + 'administrador', '¿Quién puede dar de alta usuarios y cambiar la configuración?', listaQuien(false).concat(E.externos.map(function (x) { return [x.id, x.nombre + ' (de fuera)']; })).concat([['varios', 'Varias personas'], ['nadie', 'Nadie claro']])) + '</div>' +
+        '<div class="fila">' + cSelect(b + 'criticidad', 'Si dejara de funcionar una semana…', O.criticidad) + cSelect(b + 'dos_pasos', 'Para entrar, ¿pide un código además de la contraseña?', O.dos_pasos_h) + '</div>' +
+        '<details class="mas"><summary>Más detalle (opcional)</summary>' +
+          '<div class="fila">' + cSelect(b + 'plan', 'Plan', O.plan) + '<div class="campo"><label>Coste al mes (€)</label>' + cTexto(b + 'coste_mes', '', { tipo: 'number', min: 0 }) + '</div>' + cSelect(b + 'exportar', '¿Podéis descargar toda vuestra información?', O.exportar) + '</div>' +
+          cOpciones(b + 'datos', '¿Qué información guarda?', O.datos_herr, { multi: true }) +
+          (otras.length ? cOpciones(b + 'copia_manual_con', '¿Se copian datos a mano entre esta y otra herramienta? ¿Cuál?', otras, { multi: true }) : '') +
+          '<div class="fila">' + cSelect(b + 'funciones_ia', '¿Trae funciones de inteligencia artificial?', O.funciones_ia) + cSelect(b + 'satisfaccion', '¿Cuánto os gusta? (1 a 5)', O.satisfaccion) + '</div>' +
+          cTexto(b + 'molestia', 'Lo que más os molesta de ella', { opcional: true }) +
+        '</details></div>';
+    }).join('');
+    var rapidas = HERR_RAPIDAS.map(function (h, i) { return '<button type="button" data-accion="herr-rapida" data-i="' + i + '"' + (nombres.indexOf(h[0].toLowerCase()) >= 0 ? ' disabled' : '') + '>+ ' + esc(h[0]) + '</button>'; }).join('');
+    return '<section class="seccion"><h2>Herramientas</h2><p class="intro">Los programas y aplicaciones que usáis para trabajar, también los gratuitos (WhatsApp, Excel…). Luego, en cada paso, elegirás con cuál se hace. El papel y la libreta no hace falta añadirlos: ya están como opción.</p>' +
+      '<div class="bloque"><h3>Añade las que uséis</h3><div class="rapidos">' + rapidas + '</div>' + tarjetas +
+      '<button type="button" class="boton" data-accion="nueva-herr">+ Añadir otra</button></div></section>';
+  };
+
+  /* ----- áreas y procesos ----- */
+  function plantillasDe(areaId) {
+    var tipo = E.empresa.tipo_negocio || '';
+    return (CATALOGO.procesos || []).filter(function (p) { return p.area === areaId; }).map(function (p) {
+      return { p: p, tipico: p.para.indexOf('todos') >= 0 || p.para.indexOf(tipo) >= 0 };
+    }).sort(function (a, b) { return (b.tipico - a.tipico); });
+  }
+  function estadoProceso(p) {
+    var pasos = (p.pasos || []).filter(function (s) { return (s.que || '').trim() || s.tipo === 'decision'; });
+    if (!pasos.length) return ['vacio', 'Sin pasos'];
+    var faltan = pasos.filter(function (s) { return s.tipo !== 'espera' && !s.quien; }).length + (p.resultado ? 0 : 1) + ((p.disparador || {}).tipo ? 0 : 1) + (pasos.some(function (s) { return s.sugerido; }) ? 1 : 0);
+    if (faltan || !p.confirmado) return ['medias', pasos.length + ' pasos · a medias'];
+    return ['listo', pasos.length + ' pasos · listo'];
+  }
+
+  RENDER.area = function (areaId) {
+    var a = AREAS.filter(function (x) { return x.id === areaId; })[0];
+    var area = E.areas[areaId];
+    var mia = areasMias().indexOf(areaId) >= 0;
+    var elegidos = area.procesos.map(function (p) { return p.plantilla; });
+    var catalogo = plantillasDe(areaId).map(function (x) {
+      var marcado = elegidos.indexOf(x.p.id) >= 0;
+      return '<label class="proc-op' + (marcado ? ' elegido' : '') + '"><input type="checkbox" data-accion="elegir-proceso" data-plantilla="' + x.p.id + '"' + (marcado ? ' checked' : '') + '><span><b>' + esc(x.p.nombre) + '</b><small>' + esc(x.p.alcance) + '</small>' + (x.tipico && E.empresa.tipo_negocio ? '<span class="tipico">Típico en tu tipo de negocio</span>' : '') + '</span></label>';
+    }).join('');
+    var procesos = area.procesos.map(function (p, i) { return renderProceso(areaId, i); }).join('');
+    return '<section class="seccion"><h2>' + a.nombre + '</h2><p class="intro">' + a.texto + '</p>' +
+      (!mia ? '<div class="area-ajena">Esta área la va a contestar otra persona. Si la conoces, puedes contestarla igualmente. <button type="button" class="boton peque" data-accion="hacerla-mia" data-area="' + areaId + '">La contesto yo</button></div>' : '') +
+      '<div class="bloque">' + cSelect('areas.' + areaId + '.responsable', '¿Quién es responsable de esta área?', listaQuien(false).concat(E.externos.map(function (x) { return [x.id, x.nombre + ' (de fuera)']; }))) + '</div>' +
+      '<div class="bloque"><h3>¿Qué procesos hacéis?</h3><p class="ayuda">Marca los que existen en tu negocio, aunque se hagan de manera informal. Si hay alguno que no aparece, añádelo. Con 2 a 4 por área es suficiente para empezar; los que más os preocupan, primero.</p>' +
+        '<div class="catalogo">' + catalogo + '</div>' +
+        '<div style="margin-top:12px"><button type="button" class="boton" data-accion="proceso-propio" data-area="' + areaId + '">+ Añadir un proceso que no aparece</button></div>' +
+      '</div>' +
+      (procesos ? '<div class="bloque"><h3>Cuéntanos cómo lo hacéis</h3><p class="ayuda">Abre cada proceso y descríbelo. Unos 8-10 minutos cada uno.</p>' + procesos + '</div>' : '') +
+      '<div class="bloque">' + cTexto('areas.' + areaId + '.notas', '¿Algo más de esta área que no encaje en los procesos?', { area: true, opcional: true }) + '</div>' +
+    '</section>';
+  };
+
+  function renderProceso(areaId, i) {
+    var p = E.areas[areaId].procesos[i];
+    var b = 'areas.' + areaId + '.procesos.' + i + '.';
+    var est = estadoProceso(p);
+    var abierto = UI.abierto[areaId + ':' + p.id];
+    var plantilla = (CATALOGO.procesos || []).filter(function (x) { return x.id === p.plantilla; })[0];
+    var disp = p.disparador || {};
+    var otros = todosProcesos().filter(function (x) { return x.p.id !== p.id; }).map(function (x) { return [x.p.id, x.area.nombre + ' · ' + (x.p.nombre || 'sin nombre')]; });
+    var phDisp = { cliente: 'El cliente escribe por WhatsApp pidiendo precio', externo: 'Llega la factura del proveedor', calendario: 'Cada lunes / el día 1 de cada mes', sistema: 'Entra un pedido en la tienda online', decision: 'Decidimos lanzar una campaña', proceso: '', otro: '' }[disp.tipo] || 'Con tus palabras';
+    var pasos = (p.pasos || []).map(function (s, j) { return renderPaso(areaId, i, j); }).join('');
+    var sinPasos = !(p.pasos || []).length;
+    return '<details class="proceso" data-proceso="' + areaId + ':' + esc(p.id) + '"' + (abierto ? ' open' : '') + '><summary><b>' + esc(p.nombre || 'Proceso sin nombre') + '</b><span class="estado ' + est[0] + '">' + est[1] + '</span></summary><div class="proceso-cuerpo">' +
+      cTexto(b + 'nombre', '¿Cómo lo llamáis vosotros?') +
+      cTexto(b + 'ultimo_caso', 'Piensa en la última vez que pasó: ¿cuándo fue y de qué se trataba?', { ph: 'El martes, el presupuesto de un baño en Getafe', ayuda: 'Contesta todo lo demás pensando en ese caso real: cómo fue de verdad, no cómo debería ser.' }) +
+      '<div class="bloque"><h3>Cómo empieza</h3>' +
+        cOpciones(b + 'disparador.tipo', '¿Qué lo pone en marcha?', O.disparador) +
+        (disp.tipo === 'proceso' ? cSelect(b + 'disparador.proceso', '¿Qué proceso?', otros) : '') +
+        (disp.tipo === 'externo' ? cSelect(b + 'disparador.externo', '¿Quién?', E.externos.map(function (x) { return [x.id, x.nombre]; }), { vacio: E.externos.length ? 'Elige…' : 'Añade antes a los de fuera en «Quién trabaja»' }) : '') +
+        cTexto(b + 'disparador.texto', 'Cuéntalo con tus palabras', { ph: phDisp }) +
+        '<div class="fila"><div class="campo"><label>¿Cuántas veces pasa?</label>' + cTexto(b + 'frecuencia.veces', '', { tipo: 'number', min: 0, ph: 'Número' }) + '</div>' + cSelect(b + 'frecuencia.periodo', 'Cada…', O.periodo) + cSelect(b + 'responsable', 'Responsable de que salga bien', listaQuien(false)) + '</div>' +
+      '</div>' +
+      '<div class="bloque"><h3>Los pasos</h3><p class="ayuda">Un paso por fila, en orden, empezando cada uno por un verbo («Preparar el presupuesto»). Si en algún momento alguien decide algo, añade un paso de tipo <b>Decisión</b>. Si hay que esperar, uno de tipo <b>Espera</b>. Si se manda o se recibe algo de fuera (del cliente, de un proveedor), uno de tipo <b>Envío o recepción</b>.</p>' +
+        (sinPasos && plantilla && activo('pasos_tipicos') ? '<div class="tarjeta" style="background:#f8fafc"><p style="margin-bottom:10px">¿Cómo quieres empezar?</p><button type="button" class="boton principal" data-accion="cargar-plantilla" data-area="' + areaId + '" data-i="' + i + '">Con los pasos típicos (luego los cambias)</button> <button type="button" class="boton" data-accion="nuevo-paso" data-area="' + areaId + '" data-i="' + i + '">En blanco</button><p class="ayuda" style="margin-top:10px">Los pasos típicos son solo un punto de partida: se marcan en amarillo hasta que los confirmes, cambies o borres.</p></div>' : '') +
+        pasos +
+        (!sinPasos || !plantilla || !activo('pasos_tipicos') ? '<button type="button" class="boton" data-accion="nuevo-paso" data-area="' + areaId + '" data-i="' + i + '">+ Añadir paso</button>' : '') +
+      '</div>' +
+      '<div class="bloque"><h3>Cómo termina</h3>' +
+        cTexto(b + 'resultado', 'Cuando sale bien, ¿cuándo lo das por terminado?', { ph: 'Cuando el cliente ha pagado', ayuda: 'Ojo: «cuando el cliente ha pagado», no «cuando enviamos la factura».' }) +
+        cTexto(b + 'otros_finales', '¿De qué otras formas puede terminar? ¿Más o menos cuántos de cada 10?', { ph: 'Rechazado, 3 de cada 10. Sin respuesta, 2 de cada 10.', opcional: true }) +
+        '<div class="fila">' + cSelect(b + 'siguiente', 'Cuando termina, ¿empieza otro proceso?', otros, { vacio: 'No / no lo sé' }) + cSelect(b + 'duracion', 'De principio a fin, ¿cuánto pasa normalmente?', O.duracion) + '</div>' +
+      '</div>' +
+      '<div class="bloque"><h3>Lo que no sale como debería</h3>' +
+        cTexto(b + 'caso_complicado', 'Cuéntanos la última vez que se complicó: qué pasó y cómo se resolvió', { area: true, filas: 2, opcional: true }) +
+        cOpciones(b + 'excepciones_frecuencia', '¿Cada cuánto se sale del camino normal?', O.excepciones) +
+        cTexto(b + 'dolor', '¿Qué es lo que más te molesta de este proceso?', { area: true, filas: 2, opcional: true }) +
+      '</div>' +
+      (activo('proceso_para_terminar') ? '<details class="mas bloque"><summary>Para terminar (opcional, 1 minuto)</summary>' +
+        cOpciones(b + 'documentado', '¿Está escrito en algún sitio cómo se hace?', O.documentado) +
+        cOpciones(b + 'dependencia_persona', 'Si la persona que más sabe de esto falta dos semanas…', O.dependencia) +
+        cOpciones(b + 'se_mide', '¿Medís algo de este proceso (tiempos, errores, conversión)?', O.se_mide) +
+        ((p.se_mide === 'datos' || p.se_mide === 'ojo') ? cTexto(b + 'kpi_actual', '¿Qué medís y cuánto da hoy?') : '') +
+        cOpciones(b + 'cambios_previstos', '¿Va a cambiar en los próximos 12 meses?', O.cambios) +
+        cOpciones(b + 'impacto', 'Si este proceso mejora, ¿dónde se notaría?', O.impacto, { multi: true }) +
+        cOpciones(b + 'prioridad', '¿Cuánto te importa mejorarlo?', O.prioridad) +
+        cOpciones(b + 'datos_sensibles', '¿En este proceso se manejan datos de personas?', O.datos_proc, { multi: true }) +
+      '</details>' : '') +
+      '<div class="bloque"><h3>¿Lo hemos entendido bien?</h3><p class="ayuda">Así queda contado tu proceso. Léelo de arriba abajo: si algo no es así, corrígelo en los pasos.</p><div id="relato-' + areaId + '-' + i + '">' + relato(p) + '</div>' +
+        '<div style="margin-top:12px">' + (p.confirmado ? '<span class="confirmado">✓ Confirmado</span> <button type="button" class="boton peque" data-accion="desconfirmar" data-area="' + areaId + '" data-i="' + i + '">Deshacer</button>' : '<button type="button" class="boton acento" data-accion="confirmar" data-area="' + areaId + '" data-i="' + i + '">Sí, es así</button>') + '</div>' +
+      '</div>' +
+      '<div style="margin-top:16px;text-align:right"><button type="button" class="boton peque peligro" data-accion="quitar-proceso" data-area="' + areaId + '" data-i="' + i + '">Quitar este proceso</button></div>' +
+    '</div></details>';
+  }
+
+  function renderPaso(areaId, i, j) {
+    var p = E.areas[areaId].procesos[i];
+    var s = p.pasos[j];
+    var b = 'areas.' + areaId + '.procesos.' + i + '.pasos.' + j + '.';
+    var tipo = s.tipo || 'tarea';
+    var herrs = E.herramientas.map(function (h) { return [h.id, h.nombre || '(sin nombre)']; }).concat([['mano', 'A mano / papel'], ['memoria', 'De memoria']]);
+    var boton = function (t, txt) { return '<button type="button" class="' + (tipo === t ? 'activo' : '') + '" data-accion="tipo-paso" data-tipo="' + t + '" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">' + txt + '</button>'; };
+    var cuerpo = '';
+    var avisos = [];
+    if (tipo === 'decision') {
+      var dec = s.decision || { opciones: [] };
+      var destinos = [['siguiente', 'Sigue con el paso siguiente']].concat(p.pasos.map(function (x, k) { return k === j ? null : ['paso:' + x.id, 'Va al paso ' + (k + 1) + ': ' + (x.tipo === 'decision' ? ((x.decision || {}).pregunta || x.que || 'decisión') : (x.que || '…'))]; }).filter(Boolean)).concat([['fin', 'Termina aquí']]).concat(todosProcesos().filter(function (x) { return x.p.id !== p.id; }).map(function (x) { return ['proceso:' + x.p.id, 'Termina y pasa a: ' + (x.p.nombre || 'otro proceso')]; }));
+      cuerpo = '<div class="fila">' + cTexto(b + 'decision.pregunta', '¿Qué se decide? En forma de pregunta', { ph: '¿Acepta el presupuesto?' }) + cSelect(b + 'quien', '¿Quién decide?', listaQuien(true)) + '</div>' +
+        '<div class="campo"><span class="etiqueta">Respuestas posibles y qué pasa con cada una</span>' +
+        (dec.opciones || []).map(function (o, k) {
+          var bo = b + 'decision.opciones.' + k + '.';
+          return '<div class="opcion-dec">' + cTexto(bo + 'texto', '', { ph: 'Sí / No / Pide cambios' }) + cSelect(bo + 'destino', '', destinos, { vacio: '¿Y entonces?' }) + '<button type="button" class="icono" title="Quitar respuesta" data-accion="quitar-opcion" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '" data-k="' + k + '">✕</button>' + (o.destino === 'fin' ? '<div class="fin-txt">' + cTexto(bo + 'fin', '', { ph: '¿Cómo termina? Ej.: Presupuesto rechazado' }) + '</div>' : '') + '</div>';
+        }).join('') +
+        '<button type="button" class="boton peque" data-accion="nueva-opcion" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">+ Añadir respuesta</button></div>';
+      if ((dec.opciones || []).filter(function (o) { return (o.texto || '').trim(); }).length < 2) avisos.push('Una decisión necesita al menos dos respuestas.');
+      (dec.opciones || []).forEach(function (o) { if ((o.texto || '').trim() && !o.destino) avisos.push('Falta decir qué pasa si «' + esc(o.texto) + '».'); });
+      if (!s.quien) avisos.push('Falta quién decide.');
+    } else if (tipo === 'espera') {
+      cuerpo = '<div class="fila">' + cTexto(b + 'que', '¿Qué se espera?', { ph: 'Esperar la respuesta del cliente' }) + cTexto(b + 'espera', '¿Cuánto, normalmente?', { ph: 'Unos 3 días' }) + '</div>';
+    } else {
+      var com = tipo === 'comunicacion' ? (s.comunicacion || {}) : null;
+      cuerpo = '<div class="fila">' + cTexto(b + 'que', '¿Qué se hace?', { ph: tipo === 'comunicacion' ? 'Enviar el presupuesto' : 'Preparar el presupuesto' }) + cSelect(b + 'quien', '¿Quién lo hace?', listaQuien(true)) + '</div>' +
+        (com ? '<div class="fila">' + cSelect(b + 'comunicacion.sentido', '¿Se envía o se recibe?', [['envia', 'Lo enviamos'], ['recibe', 'Lo recibimos']]) + cSelect(b + 'comunicacion.con', '¿Con quién?', [['cliente', 'El cliente']].concat(E.externos.map(function (x) { return [x.id, x.nombre]; }))) + cTexto(b + 'comunicacion.que', '¿Qué es lo que va o viene?', { ph: 'Presupuesto, factura, pedido…' }) + '</div>' : '') +
+        cOpciones(b + 'con', '¿Con qué?', herrs, { multi: true }) +
+        cOpciones(b + 'tiempo', 'Tiempo de trabajo cada vez (sin contar esperas)', O.tiempo);
+      if (!s.quien) avisos.push('Falta quién lo hace.');
+    }
+    var detalle = tipo === 'espera' ? '' : '<details class="mas"><summary>Añadir detalle (opcional)</summary>' +
+      cTexto(b + 'como', '¿Cómo se hace exactamente? Lo que le explicarías a alguien nuevo', { area: true, filas: 3 }) +
+      cTexto(b + 'dolor', '¿Qué falla o se atasca en este paso?', { area: true, filas: 2 }) +
+      (activo('detalle_de_cada_paso') ? '<p class="ayuda" style="margin-top:14px"><b>Si tienes un minuto más</b>, esto nos ayuda a ver qué se podría mejorar:</p>' +
+      cOpciones(b + 'fase2.naturaleza', '¿Qué se hace sobre todo en este paso?', O.naturaleza) +
+      cOpciones(b + 'fase2.formato_entrada', '¿Cómo llega la información para hacerlo?', O.formato, { multi: true }) +
+      cOpciones(b + 'fase2.copia_manual', '¿Se copian datos a mano de un sitio a otro?', [['si', 'Sí'], ['no', 'No']]) +
+      cOpciones(b + 'fase2.errores', '¿Cada cuánto hay que rehacerlo o corregirlo?', O.errores) +
+      cOpciones(b + 'fase2.gravedad', 'Si sale mal, ¿qué pasa?', O.gravedad) +
+      cOpciones(b + 'fase2.datos_personales', '¿Se manejan datos de personas?', O.datos_paso) +
+      cOpciones(b + 'fase2.accion', '¿Qué produce este paso?', O.accion, { multi: true }) : '') +
+    '</details>';
+    return '<div class="paso ' + tipo + (s.sugerido ? ' sugerido' : '') + '" data-paso="' + areaId + ':' + i + ':' + j + '"><div class="paso-cab"><span class="paso-num">' + (j + 1) + '</span>' +
+      '<span class="tipos">' + boton('tarea', 'Tarea') + boton('decision', 'Decisión') + boton('espera', 'Espera') + boton('comunicacion', 'Envío o recepción') + '</span>' +
+      (s.sugerido ? '<span class="etq-sugerido">Sugerido</span><button type="button" class="boton peque" data-accion="aceptar-sugerido" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">✓ Lo hacemos así</button>' : '') +
+      '<span class="acciones"><button type="button" class="icono" title="Subir" data-accion="subir-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">↑</button><button type="button" class="icono" title="Bajar" data-accion="bajar-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">↓</button><button type="button" class="icono" title="Insertar un paso debajo" data-accion="insertar-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">＋</button><button type="button" class="icono" title="Borrar paso" data-accion="quitar-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">✕</button></span></div>' +
+      cuerpo + avisos.map(function (a) { return '<div class="avisito">' + a + '</div>'; }).join('') + detalle + '</div>';
+  }
+
+  /* El relato que el cliente lee para confirmar que se ha entendido (playback). */
+  function relato(p) {
+    var pasos = p.pasos || [];
+    if (!pasos.length) return '<div class="relato suave">Cuando añadas pasos, aquí aparecerá tu proceso contado de principio a fin.</div>';
+    var disp = p.disparador || {};
+    var inicio = (disp.texto || etiqueta(O.disparador, disp.tipo) || 'algo que no has dicho todavía').replace(/\.$/, '');
+    var idx = {}; pasos.forEach(function (s, k) { idx[s.id] = k + 1; });
+    var destino = function (o) {
+      var d = o.destino || 'siguiente';
+      if (d === 'siguiente') return 'sigue con el paso siguiente';
+      if (d === 'fin') return 'termina' + (o.fin ? ' («' + esc(o.fin) + '»)' : '');
+      if (d.indexOf('paso:') === 0) return 'vuelve o salta al paso ' + (idx[d.slice(5)] || '?');
+      if (d.indexOf('proceso:') === 0) { var x = todosProcesos().filter(function (y) { return y.p.id === d.slice(8); })[0]; return 'termina y pasa a «' + esc(x ? x.p.nombre : 'otro proceso') + '»'; }
+      return '';
+    };
+    var lis = pasos.map(function (s, k) {
+      var t = s.tipo || 'tarea';
+      if (t === 'decision') {
+        var dec = s.decision || {};
+        return '<li class="dec">◆ <b>' + esc(dec.pregunta || s.que || '¿…?') + '</b>' + (s.quien ? ' (decide ' + esc(nombreQuien(s.quien)) + ')' : '') + ': ' + (dec.opciones || []).map(function (o) { return 'si «' + esc(o.texto || '…') + '», ' + destino(o); }).join('; ') + '.</li>';
+      }
+      if (t === 'espera') return '<li>Se espera' + (s.espera ? ' ' + esc(s.espera) : '') + (s.que ? ' (' + esc(s.que.toLowerCase()) + ')' : '') + '.</li>';
+      var quien = s.quien ? nombreQuien(s.quien) : '<i>alguien (falta decir quién)</i>';
+      var con = (s.con || []).map(nombreHerr).filter(Boolean);
+      var com = t === 'comunicacion' && s.comunicacion ? ' — ' + (s.comunicacion.sentido === 'recibe' ? 'se recibe de ' : 'se envía a ') + esc(s.comunicacion.con === 'cliente' || !s.comunicacion.con ? 'el cliente' : nombreQuien(s.comunicacion.con)) : '';
+      return '<li><b>' + esc(quien.charAt(0).toUpperCase() + quien.slice(1)) + '</b>: ' + esc((s.que || '…').charAt(0).toLowerCase() + (s.que || '…').slice(1)) + (con.length ? ', con ' + esc(con.join(' y ')) : '') + (s.tiempo && s.tiempo !== 'nose' ? ' (' + esc(etiqueta(O.tiempo, s.tiempo)) + ')' : '') + com + '.</li>';
+    }).join('');
+    var sig = p.siguiente ? todosProcesos().filter(function (y) { return y.p.id === p.siguiente; })[0] : null;
+    return '<div class="relato"><p style="margin:0">Empieza cuando <b>' + esc(inicio.charAt(0).toLowerCase() + inicio.slice(1)) + '</b>.</p><ol>' + lis + '</ol><p style="margin:0">Termina cuando <b>' + esc((p.resultado || 'no lo has dicho todavía').replace(/\.$/, '')) + '</b>' + (sig ? ', y entonces empieza «' + esc(sig.p.nombre) + '»' : '') + '.</p></div>';
+  }
+
+  RENDER.seguridad = function () {
+    var intro = activo('seguridad') ? 'Diez preguntas rápidas sobre cómo protegéis la información' + (activo('ia') ? ' y otras pocas sobre la inteligencia artificial' : '') + '. <b>No te pediremos contraseñas ni datos de clientes</b>: basta con sí, no o no sé. «No sé» es una respuesta válida.' : 'Unas preguntas rápidas sobre cómo usáis hoy la inteligencia artificial. «No sé» es una respuesta válida.';
+    return '<section class="seccion"><h2>' + BLOQUE_DATOS + '</h2><p class="intro">' + intro + '</p>' +
+      (!activo('seguridad') ? '' : '<div class="bloque"><h3>Seguridad</h3>' +
+        cOpciones('seguridad.dos_pasos', 'Para entrar al correo, al banco y a los programas principales, ¿se pide un código del móvil además de la contraseña?', O.s_dos_pasos) +
+        cOpciones('seguridad.cuentas_compartidas', '¿Hay usuarios y contraseñas que usan varias personas (info@, redes, banco, tienda)?', O.s_compartidas) +
+        cOpciones('seguridad.contrasenas', '¿Dónde se guardan normalmente las contraseñas del trabajo?', O.s_contrasenas) +
+        cOpciones('seguridad.copias', '¿Hacéis copias de seguridad de la información importante?', O.s_copias) +
+        cOpciones('seguridad.bajas', 'Cuando alguien se va (o dejáis de trabajar con una agencia), ¿qué pasa con sus accesos?', O.s_bajas) +
+        cOpciones('seguridad.dispositivos', '¿Con qué equipos se trabaja? Marca todo lo que aplique', O.s_dispositivos, { multi: true }) +
+        cOpciones('seguridad.incidentes', 'En el último año, ¿os ha pasado algo de esto?', O.s_incidentes, { multi: true }) +
+        cOpciones('seguridad.datos_personales', '¿Qué datos de personas maneja la empresa?', O.s_datos, { multi: true }) +
+        cOpciones('seguridad.cobro_tarjeta', '¿Cómo cobráis con tarjeta?', O.s_tarjeta, { multi: true }) +
+        cOpciones('seguridad.formacion', 'En el último año, ¿el equipo ha recibido formación o avisos sobre fraudes por email o teléfono?', O.s_formacion) +
+      '</div>') +
+      (!activo('ia') ? '' : '<div class="bloque"><h3>Inteligencia artificial hoy</h3>' +
+        cOpciones('ia.uso', '¿Se usa hoy alguna IA (ChatGPT, Copilot, Gemini…) en el trabajo?', O.ia_uso) +
+        ((E.ia.uso && E.ia.uso !== 'no') ? cOpciones('ia.herramientas', '¿Cuáles?', O.ia_herr, { multi: true }) + cOpciones('ia.tipo_cuenta', '¿Con qué tipo de cuenta?', O.ia_cuenta) + cOpciones('ia.que_se_comparte', '¿Qué se suele pegar o subir a esas herramientas?', O.ia_comparte, { multi: true }) : '') +
+        cOpciones('ia.normas', '¿Hay normas sobre lo que se puede y no se puede hacer con IA?', O.ia_normas) +
+        cOpciones('ia.formacion', '¿El equipo ha recibido formación sobre uso de IA?', O.ia_formacion) +
+        cOpciones('ia.cara_cliente', '¿La IA habla o publica directamente ante clientes?', O.ia_cliente, { multi: true }) +
+        cOpciones('ia.decisiones_personas', '¿Se usa (o queréis usar) IA para alguna de estas cosas?', O.ia_personas, { multi: true }) +
+        cOpciones('ia.automatizaciones', '¿Qué automatizaciones tenéis funcionando?', O.ia_autom, { multi: true }) +
+        ((E.ia.automatizaciones || []).filter(function (x) { return x !== 'ninguna'; }).length ? cOpciones('ia.quien_mantiene', '¿Quién las mantiene?', O.ia_mantiene) : '') +
+        cOpciones('ia.sin_revision', '¿Alguna IA o automatización puede enviar emails, pagar, cambiar datos o publicar sin que nadie lo revise?', O.si_no_nose) +
+        cTexto('ia.expectativas', '¿Qué te gustaría que hiciera la IA en tu negocio?', { area: true, filas: 2, opcional: true }) +
+        cOpciones('ia.preocupaciones', '¿Qué te preocupa?', O.ia_preocupa, { multi: true }) +
+      '</div>') + '</section>';
+  };
+
+  function revision() {
+    var l = [];
+    var ok = function (t) { l.push('<li class="ok">✓ ' + t + '</li>'); };
+    var falta = function (t) { l.push('<li class="falta">! ' + t + '</li>'); };
+    if (E.empresa.nombre) ok('Empresa: ' + esc(E.empresa.nombre)); else falta('Falta el nombre de la empresa.');
+    if (E.equipo.length) ok(E.equipo.length + ' puestos en el equipo'); else falta('No has añadido ningún puesto en «Quién trabaja».');
+    if (E.herramientas.length) ok(E.herramientas.length + ' herramientas'); else falta('No has añadido herramientas.');
+    AREAS.forEach(function (a) {
+      var ps = E.areas[a.id].procesos;
+      var mia = areasMias().indexOf(a.id) >= 0;
+      if (!ps.length) { if (mia) falta(a.nombre + ': no has marcado ningún proceso.'); return; }
+      ps.forEach(function (p) {
+        var est = estadoProceso(p);
+        var detalles = [];
+        var pasos = p.pasos || [];
+        if (!pasos.length) detalles.push('sin pasos');
+        var sinQuien = pasos.filter(function (s) { return s.tipo !== 'espera' && !s.quien; }).length;
+        if (sinQuien) detalles.push(sinQuien + ' paso' + (sinQuien > 1 ? 's' : '') + ' sin quién');
+        if (pasos.some(function (s) { return s.sugerido; })) detalles.push('pasos sugeridos sin confirmar');
+        if (!p.resultado) detalles.push('falta cómo termina');
+        if (!(p.disparador || {}).tipo) detalles.push('falta cómo empieza');
+        if (pasos.length && !p.confirmado) detalles.push('falta confirmar el resumen');
+        if (est[0] === 'listo') ok(a.nombre + ' · ' + esc(p.nombre)); else falta(a.nombre + ' · ' + esc(p.nombre) + ': ' + detalles.join(', ') + '.');
+      });
+    });
+    if (activo('seguridad')) { if (E.seguridad.dos_pasos || E.seguridad.copias) ok('Seguridad'); else falta('Datos y seguridad sin contestar (son 2 minutos).'); }
+    EXTRAS.filter(function (q) { return q.obligatoria; }).forEach(function (q) {
+      var v = (E.extra || {})[q.id];
+      if (v === undefined || v === '' || (Array.isArray(v) && !v.length)) falta('Falta contestar: «' + esc(q.pregunta) + '».');
+    });
+    return '<ul class="revision">' + l.join('') + '</ul>';
+  }
+
+  /* ---------- envío al servidor (ENVIO_SERVIDOR v1) ----------
+     Solo se ofrece cuando el cuestionario está publicado en una web (http/https) y
+     la dirección de envío de la marca es de esa misma web (p. ej. "/api/enviar").
+     Abierto como archivo (doble clic), el cuestionario funciona como siempre:
+     descargar y mandar el archivo. Las respuestas de este navegador NO se borran al
+     enviar: solo se ofrece borrarlas cuando el servidor confirma que las ha guardado. */
+  var ENVIO = { estado: '', mensaje: '', referencia: '', consentimiento: false };
+  function urlEnvio() {
+    if (!MARCA.webhook_formulario || !/^https?:$/.test(location.protocol)) return '';
+    try { var u = new URL(MARCA.webhook_formulario, location.href); return u.origin === location.origin ? u.href : ''; } catch (e) { return ''; }
+  }
+  function emailValido(t) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) && t.length <= 254; }
+  function faltaParaEnviar() {
+    var f = [];
+    if (!String(E.empresa.nombre || '').trim()) f.push('el nombre de la empresa (en «Empresa»)');
+    if (!String(E.respondente.nombre || '').trim()) f.push('tu nombre (en «Inicio»)');
+    if (!emailValido(String(E.respondente.email || '').trim())) f.push('un email de contacto válido');
+    if (!ENVIO.consentimiento) f.push('marcar la casilla de privacidad');
+    return f;
+  }
+  function htmlEnvioServidor() {
+    var enviado = ENVIO.estado === 'enviado';
+    var estado = '';
+    if (ENVIO.estado === 'enviando') estado = '<p class="ayuda">Enviando tus respuestas…</p>';
+    if (ENVIO.estado === 'error') estado = '<div class="tarjeta" style="border-color:#b42318"><b>No se ha enviado.</b> ' + esc(ENVIO.mensaje) + '<p class="ayuda" style="margin:6px 0 0">Tus respuestas siguen guardadas en este navegador. Si no se puede enviar, pulsa «Descargar mis respuestas» y mándanos el archivo.</p></div>';
+    if (enviado) estado = '<div class="nota-envio"><b>Recibido ✓</b> Tus respuestas están guardadas en ' + esc(MARCA.nombre) + '. Referencia: <b>' + esc(ENVIO.referencia) + '</b>. Ya puedes borrar la copia de este navegador.</div>';
+    return '<div class="bloque"><h3>Enviar a ' + esc(MARCA.nombre) + '</h3>' +
+      cTexto('respondente.email', 'Tu email de contacto', { tipo: 'email', ph: 'nombre@tuempresa.com', ayuda: 'Solo para contestarte sobre este diagnóstico.' }) +
+      '<label style="display:flex;gap:10px;align-items:flex-start;margin:0 0 14px"><input type="checkbox" id="envio-consentimiento"' + (ENVIO.consentimiento ? ' checked' : '') + (enviado ? ' disabled' : '') + ' style="margin-top:4px"><span>He leído el <a href="/privacidad" target="_blank" rel="noopener">aviso de privacidad</a> y acepto que ' + esc(MARCA.nombre) + ' trate estas respuestas para preparar el diagnóstico y contactarme sobre él.</span></label>' +
+      '<div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden"><label>No rellenes este campo<input type="text" id="envio-control" tabindex="-1" autocomplete="off"></label></div>' +
+      '<div class="acciones-envio"><button type="button" class="boton acento" data-accion="enviar-web"' + (enviado || ENVIO.estado === 'enviando' ? ' disabled' : '') + '>' + (enviado ? 'Enviado ✓' : 'Enviar a ' + esc(MARCA.nombre)) + '</button></div>' +
+      '<div id="envio-estado" role="status" aria-live="polite">' + estado + '</div>' +
+      '<p class="ayuda" style="margin-top:10px"><a href="/aviso-legal" target="_blank" rel="noopener">Aviso legal</a> · <a href="/privacidad" target="_blank" rel="noopener">Privacidad</a></p>' +
+    '</div>';
+  }
+  document.addEventListener('change', function (ev) {
+    if (ev.target && ev.target.id === 'envio-consentimiento') ENVIO.consentimiento = ev.target.checked;
+  });
+
+  RENDER.enviar = function () {
+    var contacto = [MARCA.email && '<a href="mailto:' + esc(MARCA.email) + '?subject=' + encodeURIComponent('Cuestionario de procesos · ' + (E.empresa.nombre || '')) + '&body=' + encodeURIComponent('Hola, te adjunto el archivo de respuestas del cuestionario.') + '">' + esc(MARCA.email) + '</a>', MARCA.telefono && esc(MARCA.telefono)].filter(Boolean).join(' · ');
+    return '<section class="seccion"><h2>Revisar y enviar</h2><p class="intro">Así está tu cuestionario. Lo que falta no impide enviarlo: lo que quede en blanco lo completaremos juntos.</p>' +
+      '<div class="bloque"><h3>Estado</h3>' + revision() + '</div>' +
+      '<div class="bloque">' + cTexto('comentarios', '¿Algo más que quieras contarnos?', { area: true, opcional: true }) + '</div>' +
+      (urlEnvio() ? htmlEnvioServidor() : '') +
+      '<div class="bloque"><h3>' + (urlEnvio() ? 'Otras opciones' : 'Enviar') + '</h3>' +
+        '<div class="acciones-envio"><button type="button" class="boton principal" data-accion="descargar">Descargar mis respuestas</button>' +
+        '<button type="button" class="boton" data-accion="copiar-texto">Copiar como texto</button><button type="button" class="boton" data-accion="imprimir">Imprimir o guardar en PDF</button></div>' +
+        (AJ_TEXTOS.nota_final ? '<p class="intro">' + esc(conHuecos(AJ_TEXTOS.nota_final)) + '</p>' : '') +
+        '<div class="nota-envio"><b>Cuando lo descargues</b>, envía ese archivo a ' + esc(MARCA.nombre) + (contacto ? ' (' + contacto + ')' : '') + ' por email o WhatsApp. Si otra persona va a contestar otras áreas, que use este mismo cuestionario en su ordenador y envíe también su archivo.</div>' +
+        '<p class="ayuda" style="margin-top:14px">Tus respuestas se guardan en este navegador mientras rellenas el cuestionario. <button type="button" class="boton" data-accion="borrar-local">Borrar mis respuestas de este navegador</button></p>' +
+      '</div></section>';
+  };
+
+  /* ---------- pintar ---------- */
+  function pintarCabecera() {
+    document.getElementById('cabecera').innerHTML = (MARCA.logo_data ? '<img src="' + MARCA.logo_data + '" alt="">' : '') + '<div class="cabecera-txt"><b>' + esc(MARCA.nombre) + '</b><span>' + esc(MARCA.eslogan || 'Cuestionario de procesos') + '</span></div><span class="guardado" id="guardado"></span>';
+    document.documentElement.style.setProperty('--marca', MARCA.color_principal || '#1f3a5f');
+    document.documentElement.style.setProperty('--acento', MARCA.color_acento || '#e4572e');
+    document.title = 'Cuestionario de procesos · ' + (MARCA.nombre || '');
+  }
+  function seccionHecha(id) {
+    if (id === 'inicio') return !!E.respondente.nombre;
+    if (id === 'empresa') return !!(E.empresa.nombre && E.empresa.actividad);
+    if (id === 'equipo') return E.equipo.length > 0;
+    if (id === 'herramientas') return E.herramientas.length > 0;
+    if (id === 'seguridad') return activo('seguridad') ? !!(E.seguridad.dos_pasos && E.seguridad.copias) : !!E.ia.uso;
+    if (id === 'enviar') return false;
+    var ps = E.areas[id].procesos;
+    return ps.length > 0 && ps.every(function (p) { return estadoProceso(p)[0] === 'listo'; });
+  }
+  function pintarIndice() {
+    var hechas = 0;
+    var mias = SECCIONES.filter(function (s) { return !s.area || areasMias().indexOf(s.id) >= 0; });
+    document.getElementById('indice').innerHTML = SECCIONES.map(function (s, k) {
+      var hecha = seccionHecha(s.id); if (hecha && mias.indexOf(s) >= 0) hechas++;
+      var otra = s.area && areasMias().indexOf(s.id) < 0;
+      return '<li class="' + (hecha ? 'hecho ' : '') + (otra ? 'otra' : '') + '"><button type="button" data-ir="' + s.id + '" class="' + (UI.seccion === s.id ? 'actual' : '') + '"><span class="num">' + (hecha ? '✓' : k + 1) + '</span><span class="txt">' + s.nombre + (otra ? '<small>la contesta otra persona</small>' : '') + '</span></button></li>';
+    }).join('');
+    var total = mias.length - 1;
+    var pct = Math.round(hechas / total * 100);
+    document.getElementById('barra').style.width = pct + '%';
+    document.getElementById('progreso-txt').textContent = pct + ' % completado';
+  }
+  function pintar(mantenerScroll) {
+    var y = window.scrollY;
+    var activo = document.activeElement;
+    var campoActivo = activo && (activo.getAttribute('data-campo') || '');
+    var abiertos = {};
+    document.querySelectorAll('details[data-mas-id]').forEach(function (d) { abiertos[d.getAttribute('data-mas-id')] = d.open; });
+    var s = SECCIONES.filter(function (x) { return x.id === UI.seccion; })[0] || SECCIONES[0];
+    var html = s.area ? RENDER.area(s.id) : RENDER[s.id]();
+    var extras = bloqueExtras(s.id);
+    if (extras) html = html.replace(/<\/section>\s*$/, extras + '</section>');
+    document.getElementById('seccion').innerHTML = html;
+    // Recordar qué desplegables de detalle estaban abiertos.
+    var k = 0;
+    document.querySelectorAll('#seccion details.mas').forEach(function (d) {
+      var id = UI.seccion + ':' + (k++);
+      d.setAttribute('data-mas-id', id);
+      if (abiertos[id]) d.open = true;
+    });
+    pintarIndice();
+    var idx = SECCIONES.indexOf(s);
+    document.getElementById('anterior').style.visibility = idx === 0 ? 'hidden' : 'visible';
+    document.getElementById('siguiente').style.visibility = idx === SECCIONES.length - 1 ? 'hidden' : 'visible';
+    if (mantenerScroll) {
+      window.scrollTo(0, y);
+      if (campoActivo) { var el = document.querySelector('[data-campo="' + campoActivo + '"]'); if (el && el.type !== 'radio') { el.focus(); } }
+    }
+  }
+  function ir(id) { UI.seccion = id; pintar(false); window.scrollTo(0, 0); guardar(); }
+
+  /* ---------- acciones ---------- */
+  function proc(area, i) { return E.areas[area].procesos[+i]; }
+  function pasoVacio(lista) { return { id: sigId(lista, 's'), que: '', quien: '', con: [], tipo: 'tarea' }; }
+  function cargarPlantilla(area, i) {
+    var p = proc(area, i);
+    var pl = (CATALOGO.procesos || []).filter(function (x) { return x.id === p.plantilla; })[0];
+    if (!pl) return;
+    var externoPor = function (clave) {
+      var re = clave === 'gestoria' ? /gestor|asesor/i : /proveedor|almac|distrib/i;
+      var x = E.externos.filter(function (y) { return re.test(y.nombre || '') || re.test(y.que_hace || ''); })[0];
+      return x ? x.id : '';
+    };
+    p.pasos = pl.pasos.map(function (s, k) {
+      var n = { id: 's' + (k + 1), que: s.que, quien: '', con: [], tipo: s.tipo, sugerido: true };
+      if (s.tipo === 'decision') n.decision = { pregunta: s.pregunta || s.que, opciones: (s.opciones || []).map(function (o) { return { texto: o.texto, destino: o.destino ? o.destino.replace(/^paso:(\d+)$/, 'paso:s$1') : 'siguiente', fin: o.fin || '' }; }) };
+      if (s.tipo === 'espera') n.espera = s.espera || '';
+      if (s.tipo === 'comunicacion') n.comunicacion = { sentido: s.sentido || 'envia', con: s.con && s.con !== 'cliente' ? externoPor(s.con) : 'cliente', que: s.mensaje || '' };
+      return n;
+    });
+    if (!p.disparador || !p.disparador.tipo) p.disparador = { tipo: pl.disparador, texto: pl.disparador_texto || '' };
+    if (!p.resultado) p.resultado = pl.resultado || '';
+  }
+  function limpiarReferencias(id, tipo) {
+    todosProcesos().forEach(function (x) {
+      (x.p.pasos || []).forEach(function (s) {
+        if (tipo === 'herr') s.con = (s.con || []).filter(function (h) { return h !== id; });
+        else {
+          if (s.quien === id) s.quien = '';
+          if (s.comunicacion && s.comunicacion.con === id) s.comunicacion.con = '';
+        }
+      });
+      if (tipo !== 'herr' && x.p.responsable === id) x.p.responsable = '';
+    });
+    AREAS.forEach(function (a) { if (E.areas[a.id].responsable === id) E.areas[a.id].responsable = ''; });
+  }
+
+  var ACCIONES = {
+    'cargar': function () { document.getElementById('cargar-archivo').click(); },
+    'borrar-todo': function () { if (confirm('¿Seguro? Se borra todo lo que has contestado en este navegador.')) { E = nuevo(); UI = { seccion: 'inicio', abierto: {} }; guardar(); pintar(); } },
+    'rol-rapido': function (d) { var r = ROLES_RAPIDOS[+d.i]; E.equipo.push({ id: sigId(E.equipo, 'r'), rol: r[0], personas: 1, area: r[1], vinculo: r[2] }); },
+    'nuevo-rol': function () { E.equipo.push({ id: sigId(E.equipo, 'r'), rol: '', personas: 1 }); },
+    'quitar-rol': function (d) { var r = E.equipo[+d.i]; if (!confirm('¿Quitar «' + (r.rol || 'este puesto') + '»? Se quitará también de los pasos donde aparezca.')) return false; limpiarReferencias(r.id, 'rol'); E.equipo.splice(+d.i, 1); },
+    'externo-rapido': function (d) { var r = EXTERNOS_RAPIDOS[+d.i]; E.externos.push({ id: sigId(E.externos, 'x'), nombre: r[0], que_hace: r[1] }); },
+    'nuevo-externo': function () { E.externos.push({ id: sigId(E.externos, 'x'), nombre: '', que_hace: '' }); },
+    'quitar-externo': function (d) { var r = E.externos[+d.i]; if (!confirm('¿Quitar «' + (r.nombre || 'este') + '»?')) return false; limpiarReferencias(r.id, 'ext'); E.externos.splice(+d.i, 1); },
+    'herr-rapida': function (d) { var h = HERR_RAPIDAS[+d.i]; E.herramientas.push({ id: sigId(E.herramientas, 'h'), nombre: h[0], categoria: h[1] }); },
+    'nueva-herr': function () { E.herramientas.push({ id: sigId(E.herramientas, 'h'), nombre: '' }); },
+    'quitar-herr': function (d) { var h = E.herramientas[+d.i]; if (!confirm('¿Quitar «' + (h.nombre || 'esta herramienta') + '»?')) return false; limpiarReferencias(h.id, 'herr'); E.herramientas.splice(+d.i, 1); },
+    'hacerla-mia': function (d) { if (areasMias().indexOf(d.area) < 0) E.respondente.areas.push(d.area); },
+    'elegir-proceso': function (d, el) {
+      var area = UI.seccion;
+      var lista = E.areas[area].procesos;
+      var pos = lista.map(function (p) { return p.plantilla; }).indexOf(d.plantilla);
+      if (el.checked && pos < 0) {
+        var pl = (CATALOGO.procesos || []).filter(function (x) { return x.id === d.plantilla; })[0];
+        lista.push({ id: d.plantilla, plantilla: d.plantilla, nombre: pl.nombre, disparador: {}, frecuencia: {}, pasos: [] });
+        UI.abierto[area + ':' + d.plantilla] = true;
+      } else if (!el.checked && pos >= 0) {
+        if ((lista[pos].pasos || []).length && !confirm('Este proceso ya tiene pasos. ¿Quitarlo igualmente?')) { el.checked = true; return false; }
+        lista.splice(pos, 1);
+      }
+    },
+    'proceso-propio': function (d) {
+      var nombre = prompt('¿Cómo se llama el proceso? Por ejemplo: «Alta de socios del gimnasio»');
+      if (!nombre) return false;
+      var lista = E.areas[d.area].procesos;
+      var id = d.area + '-p' + (lista.filter(function (p) { return !p.plantilla; }).length + 1) + '-' + Date.now().toString(36).slice(-3);
+      lista.push({ id: id, plantilla: null, nombre: nombre.trim(), disparador: {}, frecuencia: {}, pasos: [] });
+      UI.abierto[d.area + ':' + id] = true;
+    },
+    'quitar-proceso': function (d) { var p = proc(d.area, d.i); if (!confirm('¿Quitar «' + p.nombre + '» y todo lo que has contado de él?')) return false; E.areas[d.area].procesos.splice(+d.i, 1); },
+    'cargar-plantilla': function (d) { cargarPlantilla(d.area, d.i); },
+    'nuevo-paso': function (d) { var p = proc(d.area, d.i); p.pasos = p.pasos || []; p.pasos.push(pasoVacio(p.pasos)); p.confirmado = false; },
+    'insertar-paso': function (d) { var p = proc(d.area, d.i); p.pasos.splice(+d.j + 1, 0, pasoVacio(p.pasos)); p.confirmado = false; },
+    'quitar-paso': function (d) {
+      var p = proc(d.area, d.i); var s = p.pasos[+d.j];
+      if ((s.que || '').trim() && !confirm('¿Borrar el paso «' + s.que + '»?')) return false;
+      p.pasos.splice(+d.j, 1);
+      p.pasos.forEach(function (x) { if (x.decision) x.decision.opciones.forEach(function (o) { if (o.destino === 'paso:' + s.id) o.destino = ''; }); });
+      p.confirmado = false;
+    },
+    'subir-paso': function (d) { var p = proc(d.area, d.i); var j = +d.j; if (j > 0) { var t = p.pasos[j]; p.pasos[j] = p.pasos[j - 1]; p.pasos[j - 1] = t; p.confirmado = false; } },
+    'bajar-paso': function (d) { var p = proc(d.area, d.i); var j = +d.j; if (j < p.pasos.length - 1) { var t = p.pasos[j]; p.pasos[j] = p.pasos[j + 1]; p.pasos[j + 1] = t; p.confirmado = false; } },
+    'tipo-paso': function (d) {
+      var s = proc(d.area, d.i).pasos[+d.j];
+      s.tipo = d.tipo; delete s.sugerido;
+      if (d.tipo === 'decision' && !s.decision) s.decision = { pregunta: s.que && /\?$/.test(s.que) ? s.que : '', opciones: [{ texto: 'Sí', destino: 'siguiente' }, { texto: 'No', destino: '' }] };
+      if (d.tipo === 'comunicacion' && !s.comunicacion) s.comunicacion = { sentido: 'envia', con: 'cliente', que: '' };
+      proc(d.area, d.i).confirmado = false;
+    },
+    'nueva-opcion': function (d) { var s = proc(d.area, d.i).pasos[+d.j]; s.decision = s.decision || { opciones: [] }; s.decision.opciones.push({ texto: '', destino: '' }); },
+    'quitar-opcion': function (d) { proc(d.area, d.i).pasos[+d.j].decision.opciones.splice(+d.k, 1); },
+    'aceptar-sugerido': function (d) { delete proc(d.area, d.i).pasos[+d.j].sugerido; },
+    'confirmar': function (d) {
+      var p = proc(d.area, d.i);
+      if (p.pasos.some(function (s) { return s.sugerido; }) && !confirm('Quedan pasos sugeridos sin confirmar (en amarillo). ¿Los das todos por buenos tal como están?')) return false;
+      p.pasos.forEach(function (s) { delete s.sugerido; });
+      p.confirmado = true;
+    },
+    'desconfirmar': function (d) { proc(d.area, d.i).confirmado = false; },
+    'descargar': function () {
+      var nombre = 'respuestas-' + (E.empresa.nombre || 'empresa').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + (E.respondente.nombre || 'anonimo').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.json';
+      var blob = new Blob([JSON.stringify(E, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      aviso('Descargado: ' + nombre);
+      return false;
+    },
+    /* ENVIO_SERVIDOR v1: el resultado que se muestra es el que devuelve el servidor;
+       si no contesta o contesta con error, se dice y se ofrece la descarga. */
+    'enviar-web': function () {
+      var url = urlEnvio();
+      if (!url || ENVIO.estado === 'enviando' || ENVIO.estado === 'enviado') return false;
+      var casilla = document.getElementById('envio-consentimiento');
+      ENVIO.consentimiento = !!(casilla && casilla.checked);
+      var falta = faltaParaEnviar();
+      if (falta.length) { ENVIO.estado = 'error'; ENVIO.mensaje = 'Para enviarlo falta: ' + falta.join(', ') + '.'; pintar(true); return false; }
+      volcar();
+      var trampa = document.getElementById('envio-control');
+      var cuerpo = JSON.stringify({ formato_envio: 'envio-diagnostico/1', respuestas: E, consentimiento: true, control: trampa ? trampa.value : '' });
+      var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+      var reloj = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : null;
+      ENVIO.estado = 'enviando'; ENVIO.mensaje = ''; pintar(true);
+      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: cuerpo, credentials: 'same-origin', signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { r: r, d: d || {} }; }); })
+        .then(function (x) {
+          if (x.r.ok && x.d.ok === true && x.d.referencia) { ENVIO.estado = 'enviado'; ENVIO.referencia = String(x.d.referencia); ENVIO.mensaje = ''; }
+          else { ENVIO.estado = 'error'; ENVIO.mensaje = x.d.mensaje ? String(x.d.mensaje) : 'El servidor no ha aceptado el envío (código ' + x.r.status + ').'; }
+        })
+        .catch(function () { ENVIO.estado = 'error'; ENVIO.mensaje = 'No se ha podido conectar con el servidor.'; })
+        .then(function () { if (reloj) clearTimeout(reloj); pintar(true); });
+      return false;
+    },
+    'borrar-local': function () {
+      var aviso1 = ENVIO.estado === 'enviado' ? '¿Borrar la copia de tus respuestas de este navegador? Ya están guardadas en ' + MARCA.nombre + '.' : '¿Seguro? Todavía no nos has enviado tus respuestas: si no las has descargado, se perderán.';
+      if (!confirm(aviso1)) return false;
+      try { localStorage.removeItem(CLAVE); } catch (e) { /* sin almacenamiento */ }
+      E = nuevo(); UI = { seccion: 'inicio', abierto: {} };
+      ENVIO = { estado: '', mensaje: '', referencia: '', consentimiento: false };
+      pintar(); window.scrollTo(0, 0);
+      aviso('Borrado de este navegador.');
+      return false;
+    },
+    'copiar-texto': function () {
+      var t = textoPlano();
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { aviso('Copiado. Pégalo en un email o un WhatsApp.'); }).catch(function () {
+        var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); aviso('Copiado.'); } catch (e) { aviso('No se ha podido copiar.'); } ta.remove();
+      });
+      return false;
+    },
+    'imprimir': function () { window.print(); return false; }
+  };
+
+  function textoPlano() {
+    var L = [];
+    L.push('CUESTIONARIO DE PROCESOS · ' + (E.empresa.nombre || '')); L.push('Contesta: ' + (E.respondente.nombre || '') + ' (' + (E.respondente.cargo || '') + ')'); L.push('');
+    L.push('EQUIPO: ' + E.equipo.map(function (r) { return r.rol + ' (' + (r.personas || 1) + ')'; }).join(', '));
+    L.push('DE FUERA: ' + E.externos.map(function (x) { return x.nombre; }).join(', '));
+    L.push('HERRAMIENTAS: ' + E.herramientas.map(function (h) { return h.nombre; }).join(', '));
+    todosProcesos().forEach(function (x) {
+      var p = x.p; L.push(''); L.push('== ' + x.area.nombre.toUpperCase() + ' · ' + p.nombre + ' ==');
+      var d = p.disparador || {}; L.push('Empieza: ' + (d.texto || etiqueta(O.disparador, d.tipo) || '?'));
+      (p.pasos || []).forEach(function (s, k) {
+        if (s.tipo === 'decision') L.push((k + 1) + '. [DECISIÓN] ' + ((s.decision || {}).pregunta || s.que) + ' → ' + ((s.decision || {}).opciones || []).map(function (o) { return o.texto + ': ' + (o.destino || '?') + (o.fin ? ' (' + o.fin + ')' : ''); }).join(' | '));
+        else if (s.tipo === 'espera') L.push((k + 1) + '. [ESPERA] ' + (s.que || '') + ' ' + (s.espera || ''));
+        else L.push((k + 1) + '. ' + s.que + ' — ' + nombreQuien(s.quien) + ((s.con || []).length ? ' — con ' + s.con.map(nombreHerr).join(', ') : '') + (s.tiempo ? ' — ' + etiqueta(O.tiempo, s.tiempo) : '') + (s.dolor ? ' — PROBLEMA: ' + s.dolor : ''));
+      });
+      L.push('Termina: ' + (p.resultado || '?'));
+    });
+    if (EXTRAS.length) {
+      L.push(''); L.push('== OTRAS PREGUNTAS ==');
+      EXTRAS.forEach(function (q) { var v = (E.extra || {})[q.id]; L.push(q.pregunta + ' ' + (Array.isArray(v) ? v.join(', ') : (v === undefined ? '' : v))); });
+    }
+    return L.join('\n');
+  }
+
+  /* ---------- eventos ---------- */
+  var cont = document.getElementById('seccion');
+  function valor(el) {
+    if (el.type === 'number') return el.value === '' ? '' : Number(el.value);
+    return el.value;
+  }
+  function tocado(ruta) {
+    // Si se edita un paso sugerido, deja de serlo; y cualquier cambio en los pasos pide reconfirmar.
+    var m = ruta.match(/^areas\.(\w+)\.procesos\.(\d+)\.pasos\.(\d+)\./);
+    if (m) {
+      var p = proc(m[1], m[2]);
+      var s = p.pasos[+m[3]];
+      if (s && s.sugerido) { delete s.sugerido; var tarj = document.querySelector('[data-paso="' + m[1] + ':' + m[2] + ':' + m[3] + '"]'); if (tarj) { tarj.classList.remove('sugerido'); var e1 = tarj.querySelector('.etq-sugerido'); if (e1) e1.remove(); var b1 = tarj.querySelector('[data-accion="aceptar-sugerido"]'); if (b1) b1.remove(); } }
+      p.confirmado = false;
+    }
+  }
+  var refresco = null;
+  function refrescarProceso(ruta) {
+    var m = ruta.match(/^areas\.(\w+)\.procesos\.(\d+)\./);
+    if (!m) return;
+    clearTimeout(refresco);
+    refresco = setTimeout(function () {
+      var p = proc(m[1], m[2]);
+      if (!p) return;
+      var r = document.getElementById('relato-' + m[1] + '-' + m[2]);
+      if (r) r.innerHTML = relato(p);
+      var det = document.querySelector('details.proceso[data-proceso="' + m[1] + ':' + p.id + '"] > summary');
+      if (det) { var est = estadoProceso(p); det.querySelector('b').textContent = p.nombre || 'Proceso sin nombre'; var e2 = det.querySelector('.estado'); e2.className = 'estado ' + est[0]; e2.textContent = est[1]; }
+    }, 500);
+  }
+  cont.addEventListener('input', function (ev) {
+    var el = ev.target;
+    var ruta = el.getAttribute('data-campo');
+    if (!ruta || el.type === 'radio' || el.tagName === 'SELECT') return;
+    poner(ruta, valor(el));
+    tocado(ruta);
+    guardar();
+    pintarIndice();
+    refrescarProceso(ruta);
+  });
+  cont.addEventListener('change', function (ev) {
+    var el = ev.target;
+    var ruta = el.getAttribute('data-campo');
+    if (ruta && (el.type === 'radio' || el.tagName === 'SELECT')) {
+      poner(ruta, el.value);
+      tocado(ruta);
+      guardar();
+      pintar(true);
+      return;
+    }
+    var multi = el.getAttribute('data-multi');
+    if (multi) {
+      var actual = (leer(multi) || []).slice();
+      var v = el.value;
+      if (el.checked) {
+        var max = +el.getAttribute('data-max');
+        if (max && actual.length >= max) { el.checked = false; aviso('Como mucho ' + max + '.'); return; }
+        if (v === 'nose' || v === 'no' || v === 'ninguno' || v === 'ninguna' || v === 'nada' || v === 'no_tarjeta') actual = [v];
+        else actual = actual.filter(function (x) { return ['nose', 'no', 'ninguno', 'ninguna', 'nada', 'no_tarjeta'].indexOf(x) < 0; }).concat([v]);
+      } else actual = actual.filter(function (x) { return x !== v; });
+      poner(multi, actual);
+      tocado(multi + '.');
+      guardar();
+      pintar(true);
+      return;
+    }
+    var bool = el.getAttribute('data-bool');
+    if (bool) { poner(bool, el.checked); guardar(); }
+    if (el.getAttribute('data-accion') === 'elegir-proceso') ejecutarAccion(el);
+  });
+  cont.addEventListener('toggle', function (ev) {
+    var d = ev.target;
+    if (d.matches && d.matches('details.proceso')) UI.abierto[d.getAttribute('data-proceso')] = d.open;
+  }, true);
+  function ejecutarAccion(el) {
+    var accion = el.getAttribute('data-accion');
+    var f = ACCIONES[accion];
+    if (!f) return;
+    var d = {}; Array.prototype.slice.call(el.attributes).forEach(function (a) { if (a.name.indexOf('data-') === 0) d[a.name.slice(5)] = a.value; });
+    var r = f(d, el);
+    if (r === false) return;
+    guardar();
+    pintar(true);
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b) return;
+    if (b.hasAttribute('data-ir')) { ir(b.getAttribute('data-ir')); return; }
+    if (b.hasAttribute('data-accion')) { ev.preventDefault(); ejecutarAccion(b); }
+  });
+  document.getElementById('anterior').addEventListener('click', function () { var k = SECCIONES.map(function (s) { return s.id; }).indexOf(UI.seccion); if (k > 0) ir(SECCIONES[k - 1].id); });
+  document.getElementById('siguiente').addEventListener('click', function () { var k = SECCIONES.map(function (s) { return s.id; }).indexOf(UI.seccion); if (k < SECCIONES.length - 1) ir(SECCIONES[k + 1].id); });
+  document.getElementById('cargar-archivo').addEventListener('change', function (ev) {
+    var f = ev.target.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var d = JSON.parse(r.result);
+        if (String(d.formato || '').indexOf('respuestas-diagnostico/') !== 0 || !d.areas) throw new Error('formato');
+        if (!confirm('Se va a sustituir lo que hay en este navegador por el archivo «' + f.name + '». ¿Seguir?')) return;
+        var base = nuevo();
+        AREAS.forEach(function (a) { if (!d.areas[a.id]) d.areas[a.id] = base.areas[a.id]; });
+        E = Object.assign(base, d);
+        if (!E.extra) E.extra = {};
+        guardar(); pintar(); aviso('Archivo cargado.');
+      } catch (e) { aviso('Ese archivo no es de este cuestionario.'); }
+      ev.target.value = '';
+    };
+    r.readAsText(f);
+  });
+
+  /* ---------- arranque ---------- */
+  if (!cargarGuardado()) E = nuevo();
+  if (!E.extra) E.extra = {};
+  AREAS.forEach(function (a) { if (!E.areas[a.id]) E.areas[a.id] = { responsable: '', notas: '', procesos: [] }; });
+  if (MARCA.cliente && !E.empresa.nombre) E.empresa.nombre = MARCA.cliente;
+  pintarCabecera();
+  pintar();
+  window.CUESTIONARIO = { estado: function () { return E; }, ir: ir };
+})();
+</script>
+</body>
+</html>
